@@ -115,7 +115,7 @@ class SmeagolRepositoryStore implements Initable {
   private SmeagolRepositoryInformationDto toSmeagolRepository(Repository repository) {
     return new SmeagolRepositoryInformationDto(
       repository,
-      repositoryInformation.get(repository.getId())
+      repositoryInformation.computeIfAbsent(repository.getId(), id -> computer.compute(repository))
     );
   }
 

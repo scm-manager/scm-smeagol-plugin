@@ -194,6 +194,19 @@ class SmeagolRepositoryStoreTest {
       assertThat(information.getDefaultBranch()).isEqualTo("new");
       assertThat(information.isSmeagolWiki()).isTrue();
     }
+
+    @Test
+    void shouldComputeInformationOnDemandIfMissing() {
+      Repository newRepository = new Repository("4", "git", "space", "repo_4");
+      ALL_REPOSITORIES.add(newRepository);
+      when(computer.compute(newRepository)).thenReturn(createInfo(newRepository, "new", true));
+
+      SmeagolRepositoryInformationDto information = store.getRepositories().get(2);
+
+      assertThat(information.getId()).isEqualTo("4");
+      assertThat(information.getDefaultBranch()).isEqualTo("new");
+      assertThat(information.isSmeagolWiki()).isTrue();
+    }
   }
 
   private RepositoryInformation createDefaultInfo(Repository repository) {
