@@ -24,19 +24,32 @@
 
 package com.cloudogu.smeagol;
 
-import sonia.scm.security.AllowAnonymousAccess;
+import sonia.scm.repository.Repository;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.core.Response;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 
-@AllowAnonymousAccess
-@Path("v2/smeagol/")
-class SmeagolResource {
+class RepositoryInformation {
 
-  @GET
-  @Path("resources")
-  public Response loadRepositories() {
-    return Response.ok("to be done").build();
+  private final String repositoryId;
+  private final String defaultBranch;
+  private final Collection<String> relevantBranched = new HashSet<>();
+
+  RepositoryInformation(Repository repository, String defaultBranch) {
+    this.repositoryId = repository.getId();
+    this.defaultBranch = defaultBranch;
+  }
+
+  public String getRepositoryId() {
+    return repositoryId;
+  }
+
+  public String getDefaultBranch() {
+    return defaultBranch;
+  }
+
+  public Collection<String> getRelevantBranched() {
+    return Collections.unmodifiableCollection(relevantBranched);
   }
 }

@@ -24,19 +24,31 @@
 
 package com.cloudogu.smeagol;
 
-import sonia.scm.security.AllowAnonymousAccess;
+import sonia.scm.repository.Repository;
+import sonia.scm.repository.RepositoryManager;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.core.Response;
+import javax.inject.Inject;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
 
-@AllowAnonymousAccess
-@Path("v2/smeagol/")
-class SmeagolResource {
+class RepositoryInformationInitializer implements Callable<Map<String, RepositoryInformation>> {
 
-  @GET
-  @Path("resources")
-  public Response loadRepositories() {
-    return Response.ok("to be done").build();
+  private final RepositoryManager repositoryManager;
+
+  @Inject
+  RepositoryInformationInitializer(RepositoryManager repositoryManager) {
+    this.repositoryManager = repositoryManager;
+  }
+
+  @Override
+  public Map<String, RepositoryInformation> call() {
+    return repositoryManager.getAll()
+      .stream()
+      .collect(Collectors.toMap(Repository::getId, this::buildInformation));
+  }
+
+  private RepositoryInformation buildInformation(Repository repository) {
+    return new RepositoryInformation(repository, "tbd");
   }
 }

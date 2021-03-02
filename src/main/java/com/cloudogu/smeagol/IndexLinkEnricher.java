@@ -37,7 +37,7 @@ import javax.inject.Provider;
 
 @Extension
 @Enrich(Index.class)
-public class IndexLinkEnricher implements HalEnricher {
+class IndexLinkEnricher implements HalEnricher {
 
   private final Provider<ScmPathInfoStore> scmPathInfoStore;
 

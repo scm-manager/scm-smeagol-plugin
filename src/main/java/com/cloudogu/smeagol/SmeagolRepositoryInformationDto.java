@@ -24,19 +24,29 @@
 
 package com.cloudogu.smeagol;
 
-import sonia.scm.security.AllowAnonymousAccess;
+import de.otto.edison.hal.HalRepresentation;
+import lombok.Getter;
+import sonia.scm.repository.Repository;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.core.Response;
+@Getter
+@SuppressWarnings("java:S2160") // we have no definition for equals/hashCode
+class SmeagolRepositoryInformationDto extends HalRepresentation {
 
-@AllowAnonymousAccess
-@Path("v2/smeagol/")
-class SmeagolResource {
+  private final String namespace;
+  private final String name;
+  private final String id;
+  private final String type;
+  private final String description;
+  private final String defaultBranch;
+  private final boolean smeagolWiki;
 
-  @GET
-  @Path("resources")
-  public Response loadRepositories() {
-    return Response.ok("to be done").build();
+  SmeagolRepositoryInformationDto(Repository repository, RepositoryInformation information) {
+    this.namespace = repository.getNamespace();
+    this.name = repository.getName();
+    this.id = repository.getId();
+    this.description = repository.getDescription();
+    this.type = repository.getType();
+    this.defaultBranch = information.getDefaultBranch();
+    this.smeagolWiki = !information.getRelevantBranched().isEmpty();
   }
 }
