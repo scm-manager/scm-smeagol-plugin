@@ -52,6 +52,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static sonia.scm.HandlerEventType.CREATE;
 import static sonia.scm.repository.RepositoryHookType.POST_RECEIVE;
@@ -105,7 +108,7 @@ class SmeagolRepositoryStoreTest {
         }
       }
     );
-    when(repositoryManager.getAll(any(Predicate.class), isNull()))
+    lenient().when(repositoryManager.getAll(any(Predicate.class), isNull()))
       .thenAnswer(
         invocation ->
           ALL_REPOSITORIES.stream().filter(invocation.getArgument(0, Predicate.class)).collect(toList()));
@@ -153,6 +156,13 @@ class SmeagolRepositoryStoreTest {
 
       assertThat(information.getDefaultBranch()).isEqualTo("other");
       assertThat(information.isSmeagolWiki()).isTrue();
+    }
+
+    @Test
+    void shouldIgnoreIrrelevantRepositoryType() {
+      store.detectCodeChanges(new PostReceiveRepositoryHookEvent(new RepositoryHookEvent(context, REPOSITORY_2, POST_RECEIVE)));
+
+      verify(computer, never()).compute(any());
     }
   }
 

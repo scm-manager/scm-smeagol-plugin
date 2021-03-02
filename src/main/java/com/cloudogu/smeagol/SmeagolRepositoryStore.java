@@ -78,8 +78,10 @@ class SmeagolRepositoryStore implements Initable {
   @Subscribe
   public void detectCodeChanges(PostReceiveRepositoryHookEvent event) {
     Repository repository = event.getRepository();
-    RepositoryInformation information = computer.compute(repository);
-    repositoryInformation.put(repository.getId(), information);
+    if (isSmeagolRelevant(repository)) {
+      RepositoryInformation information = computer.compute(repository);
+      repositoryInformation.put(repository.getId(), information);
+    }
   }
 
   @Subscribe
@@ -89,7 +91,7 @@ class SmeagolRepositoryStore implements Initable {
         repositoryInformation.remove(event.getItem().getId());
         break;
       case CREATE:
-        if (event.getItem().getType().equals("git")) {
+        if (isSmeagolRelevant(event.getItem())) {
           repositoryInformation.put(event.getItem().getId(), computer.compute(event.getItem()));
         }
         break;
@@ -102,7 +104,7 @@ class SmeagolRepositoryStore implements Initable {
    * smeagol relevant information.
    */
   List<SmeagolRepositoryInformationDto> getRepositories() {
-    return repositoryManager.getAll(r -> r.getType().equals("git"), null)
+    return repositoryManager.getAll(r -> isSmeagolRelevant(r), null)
       .stream()
       .map(this::toSmeagolRepository)
       .collect(toList());
@@ -128,5 +130,9 @@ class SmeagolRepositoryStore implements Initable {
     } finally {
       initializeLatch.countDown();
     }
+  }
+
+  private boolean isSmeagolRelevant(Repository r) {
+    return r.getType().equals("git");
   }
 }
