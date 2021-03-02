@@ -24,6 +24,7 @@
 
 package com.cloudogu.smeagol;
 
+import sonia.scm.NotFoundException;
 import sonia.scm.repository.Branch;
 import sonia.scm.repository.InternalRepositoryException;
 import sonia.scm.repository.Repository;
@@ -31,6 +32,7 @@ import sonia.scm.repository.api.Command;
 import sonia.scm.repository.api.RepositoryService;
 import sonia.scm.repository.api.RepositoryServiceFactory;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.List;
 
@@ -38,6 +40,7 @@ class RepositoryInformationComputer {
 
   private final RepositoryServiceFactory serviceFactory;
 
+  @Inject
   RepositoryInformationComputer(RepositoryServiceFactory serviceFactory) {
     this.serviceFactory = serviceFactory;
   }
@@ -47,19 +50,50 @@ class RepositoryInformationComputer {
       if (!service.isSupported(Command.BRANCHES)) {
         throw new IllegalArgumentException("Repository type without branch support not supported");
       }
-      List<Branch> branches;
-      try {
-        branches = service.getBranchesCommand().getBranches().getBranches();
-      } catch (IOException e) {
-        throw new InternalRepositoryException(repository, "Could not load branches", e);
-      }
-      String defaultBranch = branches
-        .stream()
-        .filter(Branch::isDefaultBranch)
-        .findAny()
-        .map(Branch::getName)
-        .orElse(null);
-      return new RepositoryInformation(repository, defaultBranch);
+      List<Branch> branches = loadBranches(repository, service);
+      String defaultBranch = findDefaultBranch(branches);
+      boolean smeagolWiki = detectSmeagolWiki(service, branches);
+      return new RepositoryInformation(repository, defaultBranch, smeagolWiki);
     }
+  }
+
+  private boolean detectSmeagolWiki(RepositoryService service, List<Branch> branches) {
+    return branches
+      .stream()
+      .anyMatch(branch -> hasSmeagolFile(service, branch));
+  }
+
+  private boolean hasSmeagolFile(RepositoryService service, Branch branch) {
+    try {
+      return service
+        .getBrowseCommand()
+        .setRevision(branch.getName())
+        .setPath(".smeagol.yml")
+        .setDisableLastCommit(true)
+        .getBrowserResult().getFile() != null;
+    } catch (NotFoundException e) {
+      return false;
+    } catch (IOException e) {
+      throw new InternalRepositoryException(service.getRepository(), "Could not browse for .smeagol.yml", e);
+    }
+  }
+
+  private List<Branch> loadBranches(Repository repository, RepositoryService service) {
+    List<Branch> branches;
+    try {
+      branches = service.getBranchesCommand().getBranches().getBranches();
+    } catch (IOException e) {
+      throw new InternalRepositoryException(repository, "Could not load branches", e);
+    }
+    return branches;
+  }
+
+  private String findDefaultBranch(List<Branch> branches) {
+    return branches
+      .stream()
+      .filter(Branch::isDefaultBranch)
+      .findAny()
+      .map(Branch::getName)
+      .orElse(null);
   }
 }

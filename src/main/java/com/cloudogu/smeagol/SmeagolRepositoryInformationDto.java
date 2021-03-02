@@ -47,6 +47,6 @@ class SmeagolRepositoryInformationDto extends HalRepresentation {
     this.description = repository.getDescription();
     this.type = repository.getType();
     this.defaultBranch = information.getDefaultBranch();
-    this.smeagolWiki = !information.getRelevantBranched().isEmpty();
+    this.smeagolWiki = !information.isSmeagolWiki();
   }
 }

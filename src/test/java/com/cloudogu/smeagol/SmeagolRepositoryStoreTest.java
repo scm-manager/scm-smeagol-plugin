@@ -122,6 +122,6 @@ class SmeagolRepositoryStoreTest {
   }
 
   private RepositoryInformation createInfo(Repository repository) {
-    return new RepositoryInformation(repository, "main");
+    return new RepositoryInformation(repository, "main", true);
   }
 }

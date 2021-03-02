@@ -26,24 +26,21 @@ package com.cloudogu.smeagol;
 
 import sonia.scm.repository.Repository;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-
 class RepositoryInformation {
 
   private final String defaultBranch;
-  private final Collection<String> relevantBranched = new HashSet<>();
+  private final boolean smeagolWiki;
 
-  RepositoryInformation(Repository repository, String defaultBranch) {
+  RepositoryInformation(Repository repository, String defaultBranch, boolean smeagolWiki) {
     this.defaultBranch = defaultBranch;
+    this.smeagolWiki = smeagolWiki;
   }
 
   public String getDefaultBranch() {
     return defaultBranch;
   }
 
-  public Collection<String> getRelevantBranched() {
-    return Collections.unmodifiableCollection(relevantBranched);
+  public boolean isSmeagolWiki() {
+    return smeagolWiki;
   }
 }

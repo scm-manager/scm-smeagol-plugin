@@ -25,25 +25,28 @@
 package com.cloudogu.smeagol;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import sonia.scm.NotFoundException;
 import sonia.scm.repository.Branches;
+import sonia.scm.repository.BrowserResult;
+import sonia.scm.repository.FileObject;
 import sonia.scm.repository.Repository;
 import sonia.scm.repository.api.BranchesCommandBuilder;
+import sonia.scm.repository.api.BrowseCommandBuilder;
 import sonia.scm.repository.api.Command;
 import sonia.scm.repository.api.RepositoryService;
 import sonia.scm.repository.api.RepositoryServiceFactory;
 
 import java.io.IOException;
-import java.util.Collections;
 
-import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 import static sonia.scm.repository.Branch.defaultBranch;
 import static sonia.scm.repository.Branch.normalBranch;
@@ -61,6 +64,8 @@ class RepositoryInformationComputerTest {
 
   @Mock
   private BranchesCommandBuilder branchesCommandBuilder;
+  @Mock(answer = Answers.RETURNS_SELF)
+  private BrowseCommandBuilder browseCommandBuilder;
 
   @InjectMocks
   private RepositoryInformationComputer computer;
@@ -68,35 +73,75 @@ class RepositoryInformationComputerTest {
   @BeforeEach
   void setupService() {
     when(serviceFactory.create(REPOSITORY)).thenReturn(service);
-    lenient().when(service.getBranchesCommand()).thenReturn(branchesCommandBuilder);
   }
 
   @Test
-  void shouldFindDefaultBranch() throws IOException {
-    when(service.isSupported(Command.BRANCHES)).thenReturn(true);
-    when(branchesCommandBuilder.getBranches())
-      .thenReturn(new Branches(normalBranch("feature", "2"), defaultBranch("develop", "1")));
-
-    RepositoryInformation information = computer.compute(REPOSITORY);
-
-    assertThat(information.getDefaultBranch()).isEqualTo("develop");
-  }
-
-  @Test
-  void shouldNotFailWhenNoBranchPresent() throws IOException {
-    when(service.isSupported(Command.BRANCHES)).thenReturn(true);
-    when(branchesCommandBuilder.getBranches())
-      .thenReturn(new Branches(emptyList()));
-
-    RepositoryInformation information = computer.compute(REPOSITORY);
-
-    assertThat(information.getDefaultBranch()).isNull();
-  }
-
-  @Test
-  void shouldNotComputeRepositoryWithoutBranchFeature() throws IOException {
+  void shouldNotComputeRepositoryWithoutBranchFeature() {
     when(service.isSupported(Command.BRANCHES)).thenReturn(false);
 
     assertThrows(IllegalArgumentException.class, () -> computer.compute(REPOSITORY));
+  }
+
+  @Nested
+  class WithCorrectRepository {
+
+    @BeforeEach
+    void setupService() {
+      when(service.isSupported(Command.BRANCHES)).thenReturn(true);
+      when(service.getBranchesCommand()).thenReturn(branchesCommandBuilder);
+      when(service.getBrowseCommand()).thenReturn(browseCommandBuilder);
+    }
+
+    @Test
+    void shouldFindDefaultBranch() throws IOException {
+      mockEmptyBrowseResult();
+      when(branchesCommandBuilder.getBranches())
+        .thenReturn(new Branches(normalBranch("feature", "2"), defaultBranch("develop", "1")));
+
+      RepositoryInformation information = computer.compute(REPOSITORY);
+
+      assertThat(information.getDefaultBranch()).isEqualTo("develop");
+    }
+
+    @Test
+    void shouldNotFailWhenNoBranchPresent() throws IOException {
+      mockEmptyBrowseResult();
+      mockEmptyBranches();
+
+      RepositoryInformation information = computer.compute(REPOSITORY);
+
+      assertThat(information.getDefaultBranch()).isNull();
+      assertThat(information.isSmeagolWiki()).isFalse();
+    }
+
+    @Test
+    void shouldFindSmeagolYaml() throws IOException {
+      mockEmptyBranches();
+      FileObject smeagolYamlFile = new FileObject();
+      when(browseCommandBuilder.getBrowserResult()).thenReturn(new BrowserResult("1", smeagolYamlFile));
+
+      RepositoryInformation information = computer.compute(REPOSITORY);
+
+      assertThat(information.isSmeagolWiki()).isTrue();
+    }
+
+    @Test
+    void shouldHandleMissingSmeagolYaml() throws IOException {
+      mockEmptyBranches();
+      when(browseCommandBuilder.getBrowserResult()).thenThrow(NotFoundException.class);
+
+      RepositoryInformation information = computer.compute(REPOSITORY);
+
+      assertThat(information.isSmeagolWiki()).isFalse();
+    }
+
+    private void mockEmptyBrowseResult() throws IOException {
+      when(browseCommandBuilder.getBrowserResult()).thenReturn(new BrowserResult());
+    }
+
+    private void mockEmptyBranches() throws IOException {
+      when(branchesCommandBuilder.getBranches())
+        .thenReturn(new Branches(normalBranch("main", "2")));
+    }
   }
 }
