@@ -135,7 +135,7 @@ class SmeagolRepositoryStore implements Initable {
   }
 
   private boolean isSmeagolRelevant(Repository r) {
-    return r.getType().equals("git");
+    return "git".equals(r.getType());
   }
 
   private Comparator<Repository> createComparator() {

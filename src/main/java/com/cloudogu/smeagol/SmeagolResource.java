@@ -33,21 +33,29 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
+import static de.otto.edison.hal.Link.link;
+import static de.otto.edison.hal.Links.linkingTo;
+
 @AllowAnonymousAccess
 @Path("v2/smeagol/")
 public class SmeagolResource {
 
   private final SmeagolRepositoryStore store;
+  private final SmeagolLinkBuilder smeagolLinkBuilder;
 
   @Inject
-  SmeagolResource(SmeagolRepositoryStore store) {
+  SmeagolResource(SmeagolRepositoryStore store, SmeagolLinkBuilder smeagolLinkBuilder) {
     this.store = store;
+    this.smeagolLinkBuilder = smeagolLinkBuilder;
   }
 
   @GET
   @Path("repositories")
   @Produces("application/json")
   public HalRepresentation loadRepositories() {
-    return new HalRepresentation(null, Embedded.embedded("repositories", store.getRepositories()));
+    return new HalRepresentation(
+      linkingTo().single(link("self", smeagolLinkBuilder.getRepositoriesLink())).build(),
+      Embedded.embedded("repositories", store.getRepositories())
+    );
   }
 }

@@ -38,6 +38,8 @@ import java.util.List;
 
 class RepositoryInformationComputer {
 
+  public static final String SMEAGOL_MARKER_FILE = ".smeagol.yml";
+
   private final RepositoryServiceFactory serviceFactory;
 
   @Inject
@@ -68,7 +70,7 @@ class RepositoryInformationComputer {
       return service
         .getBrowseCommand()
         .setRevision(branch.getName())
-        .setPath(".smeagol.yml")
+        .setPath(SMEAGOL_MARKER_FILE)
         .setDisableLastCommit(true)
         .getBrowserResult().getFile() != null;
     } catch (NotFoundException e) {
