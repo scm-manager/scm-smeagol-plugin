@@ -25,13 +25,17 @@
 package com.cloudogu.smeagol;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import sonia.scm.repository.PostReceiveRepositoryHookEvent;
 import sonia.scm.repository.Repository;
+import sonia.scm.repository.RepositoryHookEvent;
 import sonia.scm.repository.RepositoryManager;
+import sonia.scm.repository.api.HookContext;
 import sonia.scm.web.security.AdministrationContext;
 import sonia.scm.web.security.PrivilegedAction;
 
@@ -45,6 +49,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
+import static sonia.scm.repository.RepositoryHookType.POST_RECEIVE;
 
 @ExtendWith(MockitoExtension.class)
 class SmeagolRepositoryStoreTest {
@@ -60,6 +65,8 @@ class SmeagolRepositoryStoreTest {
   private RepositoryInformationInitializer informationInitializer;
   @Mock
   private RepositoryManager repositoryManager;
+  @Mock
+  private RepositoryInformationComputer computer;
 
   private boolean asAdmin = false;
 
@@ -82,9 +89,9 @@ class SmeagolRepositoryStoreTest {
       invocation -> {
         if (asAdmin) {
           return of(
-            REPOSITORY_1.getId(), createInfo(REPOSITORY_1),
-            REPOSITORY_2.getId(), createInfo(REPOSITORY_2),
-            REPOSITORY_3.getId(), createInfo(REPOSITORY_3)
+            REPOSITORY_1.getId(), createDefaultInfo(REPOSITORY_1),
+            REPOSITORY_2.getId(), createDefaultInfo(REPOSITORY_2),
+            REPOSITORY_3.getId(), createDefaultInfo(REPOSITORY_3)
           );
         } else {
           return emptyMap();
@@ -121,7 +128,35 @@ class SmeagolRepositoryStoreTest {
     assertThat(repositories.get(0).getId()).isEqualTo("2");
   }
 
-  private RepositoryInformation createInfo(Repository repository) {
-    return new RepositoryInformation(repository, "main", true);
+  @Nested
+  @SuppressWarnings("java:S5979") // false positive
+  class ForHookEvents {
+
+    @Mock
+    HookContext context;
+
+    @BeforeEach
+    void initStore() {
+      store.init(null);
+    }
+
+    @Test
+    void shouldUpdateInformationAfterCodeChange() {
+      when(computer.compute(REPOSITORY_1)).thenReturn(createInfo(REPOSITORY_1, true));
+
+      store.detectCodeChanges(new PostReceiveRepositoryHookEvent(new RepositoryHookEvent(context, REPOSITORY_1, POST_RECEIVE)));
+
+      SmeagolRepositoryInformationDto information = store.getRepositories(0, 1).get(0);
+
+      assertThat(information.isSmeagolWiki()).isTrue();
+    }
+  }
+
+  private RepositoryInformation createDefaultInfo(Repository repository) {
+    return createInfo(repository, false);
+  }
+
+  private RepositoryInformation createInfo(Repository repository, boolean smeagolWiki) {
+    return new RepositoryInformation(repository, "main", smeagolWiki);
   }
 }

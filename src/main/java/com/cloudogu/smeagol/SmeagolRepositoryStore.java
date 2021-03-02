@@ -24,12 +24,14 @@
 
 package com.cloudogu.smeagol;
 
+import com.github.legman.Subscribe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sonia.scm.EagerSingleton;
 import sonia.scm.Initable;
 import sonia.scm.SCMContextProvider;
 import sonia.scm.plugin.Extension;
+import sonia.scm.repository.PostReceiveRepositoryHookEvent;
 import sonia.scm.repository.Repository;
 import sonia.scm.repository.RepositoryManager;
 import sonia.scm.web.security.AdministrationContext;
@@ -55,19 +57,28 @@ class SmeagolRepositoryStore implements Initable {
   private final AdministrationContext administrationContext;
   private final RepositoryInformationInitializer informationInitializer;
   private final RepositoryManager repositoryManager;
+  private final RepositoryInformationComputer computer;
 
   private final Map<String, RepositoryInformation> repositoryInformation = new HashMap<>();
 
   @Inject
-  SmeagolRepositoryStore(AdministrationContext administrationContext, RepositoryInformationInitializer informationInitializer, RepositoryManager repositoryManager) {
+  SmeagolRepositoryStore(AdministrationContext administrationContext, RepositoryInformationInitializer informationInitializer, RepositoryManager repositoryManager, RepositoryInformationComputer computer) {
     this.administrationContext = administrationContext;
     this.informationInitializer = informationInitializer;
     this.repositoryManager = repositoryManager;
+    this.computer = computer;
   }
 
   @Override
   public void init(SCMContextProvider unused) {
     administrationContext.runAsAdmin(this::init);
+  }
+
+  @Subscribe
+  public void detectCodeChanges(PostReceiveRepositoryHookEvent event) {
+    Repository repository = event.getRepository();
+    RepositoryInformation information = computer.compute(repository);
+    repositoryInformation.put(repository.getId(), information);
   }
 
   /**
