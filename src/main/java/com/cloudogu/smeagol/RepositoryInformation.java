@@ -32,17 +32,11 @@ import java.util.HashSet;
 
 class RepositoryInformation {
 
-  private final String repositoryId;
   private final String defaultBranch;
   private final Collection<String> relevantBranched = new HashSet<>();
 
   RepositoryInformation(Repository repository, String defaultBranch) {
-    this.repositoryId = repository.getId();
     this.defaultBranch = defaultBranch;
-  }
-
-  public String getRepositoryId() {
-    return repositoryId;
   }
 
   public String getDefaultBranch() {

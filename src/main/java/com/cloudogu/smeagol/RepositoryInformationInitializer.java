@@ -35,10 +35,12 @@ import java.util.stream.Collectors;
 class RepositoryInformationInitializer implements Callable<Map<String, RepositoryInformation>> {
 
   private final RepositoryManager repositoryManager;
+  private final RepositoryInformationComputer computer;
 
   @Inject
-  RepositoryInformationInitializer(RepositoryManager repositoryManager) {
+  RepositoryInformationInitializer(RepositoryManager repositoryManager, RepositoryInformationComputer computer) {
     this.repositoryManager = repositoryManager;
+    this.computer = computer;
   }
 
   @Override
@@ -49,6 +51,6 @@ class RepositoryInformationInitializer implements Callable<Map<String, Repositor
   }
 
   private RepositoryInformation buildInformation(Repository repository) {
-    return new RepositoryInformation(repository, "tbd");
+    return computer.compute(repository);
   }
 }
