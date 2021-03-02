@@ -33,6 +33,7 @@ import sonia.scm.SCMContextProvider;
 import sonia.scm.plugin.Extension;
 import sonia.scm.repository.PostReceiveRepositoryHookEvent;
 import sonia.scm.repository.Repository;
+import sonia.scm.repository.RepositoryEvent;
 import sonia.scm.repository.RepositoryManager;
 import sonia.scm.web.security.AdministrationContext;
 
@@ -81,12 +82,27 @@ class SmeagolRepositoryStore implements Initable {
     repositoryInformation.put(repository.getId(), information);
   }
 
+  @Subscribe
+  public void detectRepositoryChanges(RepositoryEvent event) {
+    switch (event.getEventType()) {
+      case DELETE:
+        repositoryInformation.remove(event.getItem().getId());
+        break;
+      case CREATE:
+        if (event.getItem().getType().equals("git")) {
+          repositoryInformation.put(event.getItem().getId(), computer.compute(event.getItem()));
+        }
+        break;
+      default: // nothing to do
+    }
+  }
+
   /**
    * Returns the repositories given by {@link RepositoryManager#getAll(int, int)} with additional
    * smeagol relevant information.
    */
-  List<SmeagolRepositoryInformationDto> getRepositories(int start, int limit) {
-    return repositoryManager.getAll(start, limit)
+  List<SmeagolRepositoryInformationDto> getRepositories() {
+    return repositoryManager.getAll(r -> r.getType().equals("git"), null)
       .stream()
       .map(this::toSmeagolRepository)
       .collect(toList());

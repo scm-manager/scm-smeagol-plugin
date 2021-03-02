@@ -33,31 +33,37 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import sonia.scm.repository.PostReceiveRepositoryHookEvent;
 import sonia.scm.repository.Repository;
+import sonia.scm.repository.RepositoryEvent;
 import sonia.scm.repository.RepositoryHookEvent;
 import sonia.scm.repository.RepositoryManager;
 import sonia.scm.repository.api.HookContext;
 import sonia.scm.web.security.AdministrationContext;
 import sonia.scm.web.security.PrivilegedAction;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 import static com.google.common.collect.ImmutableMap.of;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
+import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
+import static sonia.scm.HandlerEventType.CREATE;
 import static sonia.scm.repository.RepositoryHookType.POST_RECEIVE;
 
+@SuppressWarnings("java:S5979") // false positives
 @ExtendWith(MockitoExtension.class)
 class SmeagolRepositoryStoreTest {
 
-  private static final Repository REPOSITORY_1 = new Repository("1", "git", "space", "repo_1");
-  private static final Repository REPOSITORY_2 = new Repository("2", "git", "space", "repo_2");
-  private static final Repository REPOSITORY_3 = new Repository("3", "git", "space", "repo_3");
-  private static final List<Repository> ALL_REPOSITORIES = asList(REPOSITORY_1, REPOSITORY_2, REPOSITORY_3);
+  private final Repository REPOSITORY_1 = new Repository("1", "git", "space", "repo_1");
+  private final Repository REPOSITORY_2 = new Repository("2", "hg", "space", "repo_2");
+  private final Repository REPOSITORY_3 = new Repository("3", "git", "space", "repo_3");
+  private final List<Repository> ALL_REPOSITORIES = new ArrayList<>(asList(REPOSITORY_1, REPOSITORY_2, REPOSITORY_3));
 
   @Mock
   private AdministrationContext administrationContext;
@@ -84,6 +90,7 @@ class SmeagolRepositoryStoreTest {
   }
 
   @BeforeEach
+  @SuppressWarnings("unchecked")
   void mockRepositories() {
     when(informationInitializer.call()).thenAnswer(
       invocation -> {
@@ -98,38 +105,34 @@ class SmeagolRepositoryStoreTest {
         }
       }
     );
-    when(repositoryManager.getAll(anyInt(), anyInt())).thenAnswer(
-      invocation -> {
-        Integer start = invocation.getArgument(0, Integer.class);
-        Integer limit = invocation.getArgument(1, Integer.class);
-        return ALL_REPOSITORIES.subList(start, start + limit);
-      }
-    );
+    when(repositoryManager.getAll(any(Predicate.class), isNull()))
+      .thenAnswer(
+        invocation ->
+          ALL_REPOSITORIES.stream().filter(invocation.getArgument(0, Predicate.class)).collect(toList()));
   }
 
   @Test
   void shouldApplyInformation() {
     store.init(null);
 
-    List<SmeagolRepositoryInformationDto> repositories = store.getRepositories(0, 1);
+    List<SmeagolRepositoryInformationDto> repositories = store.getRepositories();
 
-    assertThat(repositories).hasSize(1);
+    assertThat(repositories).hasSizeGreaterThan(0);
     assertThat(repositories.get(0).getId()).isEqualTo("1");
     assertThat(repositories.get(0).getDefaultBranch()).isEqualTo("main");
   }
 
   @Test
-  void shouldUsePageLimit() {
+  void shouldFilterOtherThanGitRepositories() {
     store.init(null);
 
-    List<SmeagolRepositoryInformationDto> repositories = store.getRepositories(1, 1);
+    List<SmeagolRepositoryInformationDto> repositories = store.getRepositories();
 
-    assertThat(repositories).hasSize(1);
-    assertThat(repositories.get(0).getId()).isEqualTo("2");
+    assertThat(repositories).hasSize(2);
+    assertThat(repositories).extracting("id").contains("1", "3");
   }
 
   @Nested
-  @SuppressWarnings("java:S5979") // false positive
   class ForHookEvents {
 
     @Mock
@@ -142,21 +145,46 @@ class SmeagolRepositoryStoreTest {
 
     @Test
     void shouldUpdateInformationAfterCodeChange() {
-      when(computer.compute(REPOSITORY_1)).thenReturn(createInfo(REPOSITORY_1, true));
+      when(computer.compute(REPOSITORY_1)).thenReturn(createInfo(REPOSITORY_1, "other", true));
 
       store.detectCodeChanges(new PostReceiveRepositoryHookEvent(new RepositoryHookEvent(context, REPOSITORY_1, POST_RECEIVE)));
 
-      SmeagolRepositoryInformationDto information = store.getRepositories(0, 1).get(0);
+      SmeagolRepositoryInformationDto information = store.getRepositories().get(0);
 
+      assertThat(information.getDefaultBranch()).isEqualTo("other");
+      assertThat(information.isSmeagolWiki()).isTrue();
+    }
+  }
+
+  @Nested
+  class ForRepositoryEvents {
+
+    @BeforeEach
+    void initStore() {
+      store.init(null);
+    }
+
+    @Test
+    void shouldUpdateInformationAfterCodeChange() {
+      Repository newRepository = new Repository("4", "git", "space", "repo_4");
+      ALL_REPOSITORIES.add(newRepository);
+      when(computer.compute(newRepository)).thenReturn(createInfo(newRepository, "new", true));
+
+      store.detectRepositoryChanges(new RepositoryEvent(CREATE, newRepository));
+
+      SmeagolRepositoryInformationDto information = store.getRepositories().get(2);
+
+      assertThat(information.getId()).isEqualTo("4");
+      assertThat(information.getDefaultBranch()).isEqualTo("new");
       assertThat(information.isSmeagolWiki()).isTrue();
     }
   }
 
   private RepositoryInformation createDefaultInfo(Repository repository) {
-    return createInfo(repository, false);
+    return createInfo(repository, "main", false);
   }
 
-  private RepositoryInformation createInfo(Repository repository, boolean smeagolWiki) {
-    return new RepositoryInformation(repository, "main", smeagolWiki);
+  private RepositoryInformation createInfo(Repository repository, String branch, boolean smeagolWiki) {
+    return new RepositoryInformation(repository, branch, smeagolWiki);
   }
 }
