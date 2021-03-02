@@ -41,6 +41,7 @@ import sonia.scm.web.security.AdministrationContext;
 import sonia.scm.web.security.PrivilegedAction;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -108,10 +109,16 @@ class SmeagolRepositoryStoreTest {
         }
       }
     );
-    lenient().when(repositoryManager.getAll(any(Predicate.class), isNull()))
+    lenient().when(repositoryManager.getAll(any(Predicate.class), any(Comparator.class)))
       .thenAnswer(
-        invocation ->
-          ALL_REPOSITORIES.stream().filter(invocation.getArgument(0, Predicate.class)).collect(toList()));
+        invocation -> {
+          List<Repository> repositories = (List<Repository>) ALL_REPOSITORIES
+            .stream()
+            .filter(invocation.getArgument(0, Predicate.class))
+            .collect(toList());
+          repositories.sort(invocation.getArgument(1, Comparator.class));
+          return repositories;
+        });
   }
 
   @Test

@@ -35,9 +35,11 @@ import sonia.scm.repository.PostReceiveRepositoryHookEvent;
 import sonia.scm.repository.Repository;
 import sonia.scm.repository.RepositoryEvent;
 import sonia.scm.repository.RepositoryManager;
+import sonia.scm.util.Comparables;
 import sonia.scm.web.security.AdministrationContext;
 
 import javax.inject.Inject;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -104,7 +106,7 @@ class SmeagolRepositoryStore implements Initable {
    * smeagol relevant information.
    */
   List<SmeagolRepositoryInformationDto> getRepositories() {
-    return repositoryManager.getAll(r -> isSmeagolRelevant(r), null)
+    return repositoryManager.getAll(this::isSmeagolRelevant, createComparator())
       .stream()
       .map(this::toSmeagolRepository)
       .collect(toList());
@@ -134,5 +136,9 @@ class SmeagolRepositoryStore implements Initable {
 
   private boolean isSmeagolRelevant(Repository r) {
     return r.getType().equals("git");
+  }
+
+  private Comparator<Repository> createComparator() {
+    return Comparables.comparator(Repository.class, "namespace").thenComparing(Comparables.comparator(Repository.class, "name"));
   }
 }

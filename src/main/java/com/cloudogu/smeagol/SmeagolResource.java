@@ -24,19 +24,30 @@
 
 package com.cloudogu.smeagol;
 
+import de.otto.edison.hal.Embedded;
+import de.otto.edison.hal.HalRepresentation;
 import sonia.scm.security.AllowAnonymousAccess;
 
+import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.Produces;
 
 @AllowAnonymousAccess
 @Path("v2/smeagol/")
-class SmeagolResource {
+public class SmeagolResource {
+
+  private final SmeagolRepositoryStore store;
+
+  @Inject
+  SmeagolResource(SmeagolRepositoryStore store) {
+    this.store = store;
+  }
 
   @GET
-  @Path("resources")
-  public Response loadRepositories() {
-    return Response.ok("to be done").build();
+  @Path("repositories")
+  @Produces("application/json")
+  public HalRepresentation loadRepositories() {
+    return new HalRepresentation(null, Embedded.embedded("repositories", store.getRepositories()));
   }
 }
