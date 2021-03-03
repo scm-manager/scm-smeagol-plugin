@@ -47,6 +47,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 
+import static com.cloudogu.smeagol.SmeagolRepositoryFilter.isPotentiallySmeagolRelevant;
 import static java.util.stream.Collectors.toList;
 
 @EagerSingleton
@@ -106,7 +107,7 @@ class SmeagolRepositoryStore implements Initable {
    * smeagol relevant information.
    */
   List<SmeagolRepositoryInformationDto> getRepositories() {
-    return repositoryManager.getAll(this::isPotentiallySmeagolRelevant, createComparator())
+    return repositoryManager.getAll(SmeagolRepositoryFilter::isPotentiallySmeagolRelevant, createComparator())
       .stream()
       .map(this::toSmeagolRepository)
       .collect(toList());
@@ -132,10 +133,6 @@ class SmeagolRepositoryStore implements Initable {
     } finally {
       initializeLatch.countDown();
     }
-  }
-
-  private boolean isPotentiallySmeagolRelevant(Repository r) {
-    return "git".equals(r.getType());
   }
 
   private Comparator<Repository> createComparator() {

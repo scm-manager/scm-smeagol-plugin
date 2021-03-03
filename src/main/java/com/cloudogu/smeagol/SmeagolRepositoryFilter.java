@@ -25,33 +25,10 @@
 package com.cloudogu.smeagol;
 
 import sonia.scm.repository.Repository;
-import sonia.scm.repository.RepositoryManager;
 
-import javax.inject.Inject;
-import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.stream.Collectors;
+public class SmeagolRepositoryFilter {
 
-class RepositoryInformationInitializer implements Callable<Map<String, RepositoryInformation>> {
-
-  private final RepositoryManager repositoryManager;
-  private final RepositoryInformationComputer computer;
-
-  @Inject
-  RepositoryInformationInitializer(RepositoryManager repositoryManager, RepositoryInformationComputer computer) {
-    this.repositoryManager = repositoryManager;
-    this.computer = computer;
-  }
-
-  @Override
-  public Map<String, RepositoryInformation> call() {
-    return repositoryManager.getAll()
-      .stream()
-      .filter(SmeagolRepositoryFilter::isPotentiallySmeagolRelevant)
-      .collect(Collectors.toMap(Repository::getId, this::buildInformation));
-  }
-
-  private RepositoryInformation buildInformation(Repository repository) {
-    return computer.compute(repository);
+  static boolean isPotentiallySmeagolRelevant(Repository r) {
+    return "git".equals(r.getType());
   }
 }
