@@ -8,7 +8,11 @@
       "url": "Smeagol Server URL",
       "urlHelp": "Url of Smeagol server."
     },
-    "configurationChangedSuccess": "Configuration changed"
+    "configurationChangedSuccess": "Configuration changed",
+    "navLink": {
+      "label": "Smeagol",
+      "title": "Smeagol Wiki"
+    }
   },
   "permissions": {
     "configuration": {

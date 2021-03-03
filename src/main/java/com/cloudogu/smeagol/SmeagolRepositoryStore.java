@@ -113,6 +113,10 @@ class SmeagolRepositoryStore implements Initable {
       .collect(toList());
   }
 
+  SmeagolRepositoryInformationDto getFor(Repository repository) {
+    return toSmeagolRepository(repository);
+  }
+
   private SmeagolRepositoryInformationDto toSmeagolRepository(Repository repository) {
     return new SmeagolRepositoryInformationDto(
       repository,

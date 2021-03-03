@@ -55,7 +55,7 @@ class RepositoryInformationComputer {
       List<Branch> branches = loadBranches(repository, service);
       String defaultBranch = findDefaultBranch(branches);
       boolean smeagolWiki = detectSmeagolWiki(service, branches);
-      return new RepositoryInformation(repository, defaultBranch, smeagolWiki);
+      return new RepositoryInformation(defaultBranch, smeagolWiki);
     }
   }
 

@@ -62,7 +62,7 @@ class RepositoryInformationInitializerTest {
     when(computer.compute(any())).thenAnswer(
       invocation -> {
         Repository repository = invocation.getArgument(0, Repository.class);
-        return new RepositoryInformation(repository, "main", true);
+        return new RepositoryInformation("main", true);
       }
     );
 

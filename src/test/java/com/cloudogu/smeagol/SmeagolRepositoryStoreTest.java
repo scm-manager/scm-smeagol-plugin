@@ -214,6 +214,6 @@ class SmeagolRepositoryStoreTest {
   }
 
   private RepositoryInformation createInfo(Repository repository, String branch, boolean smeagolWiki) {
-    return new RepositoryInformation(repository, branch, smeagolWiki);
+    return new RepositoryInformation(branch, smeagolWiki);
   }
 }

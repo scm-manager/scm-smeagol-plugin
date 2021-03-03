@@ -21,24 +21,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+import React from "react";
+import { ConfigurationBinder as cfgBinder } from "@scm-manager/ui-components";
+import { binder } from "@scm-manager/ui-extensions";
+import SmeagolConfiguration from "./SmeagolConfiguration";
+import SmeagolNavLink from "./SmeagolNavLink";
 
-package com.cloudogu.smeagol;
+cfgBinder.bindGlobal("/smeagol", "scm-smeagol-plugin.nav-link", "smeagolConfig", SmeagolConfiguration);
 
-class RepositoryInformation {
+const smeagolWikiPredicate = (props: object) => {
+  return props.repository && props.repository._links.smeagolWiki;
+};
 
-  private final String defaultBranch;
-  private final boolean smeagolWiki;
+const SmeagolNavLinkFactory = ({repository}) => {
+  console.log(repository)
+  return <SmeagolNavLink repository={repository} activeWhenMatch={smeagolWikiPredicate} />;
+};
 
-  RepositoryInformation(String defaultBranch, boolean smeagolWiki) {
-    this.defaultBranch = defaultBranch;
-    this.smeagolWiki = smeagolWiki;
-  }
-
-  public String getDefaultBranch() {
-    return defaultBranch;
-  }
-
-  public boolean isSmeagolWiki() {
-    return smeagolWiki;
-  }
-}
+binder.bind("repository.navigation", SmeagolNavLinkFactory, smeagolWikiPredicate);

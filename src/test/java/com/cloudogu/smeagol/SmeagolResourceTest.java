@@ -98,7 +98,7 @@ class SmeagolResourceTest {
 
   @Test
   void shouldGetRepositories() throws URISyntaxException, UnsupportedEncodingException {
-    when(store.getRepositories()).thenReturn(singletonList(new SmeagolRepositoryInformationDto(REPOSITORY, new RepositoryInformation(null, "main", true))));
+    when(store.getRepositories()).thenReturn(singletonList(new SmeagolRepositoryInformationDto(REPOSITORY, new RepositoryInformation("main", true))));
 
     MockHttpRequest request = get("/v2/smeagol/repositories");
 

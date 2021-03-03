@@ -21,7 +21,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import { ConfigurationBinder as cfgBinder } from "@scm-manager/ui-components";
-import SmeagolConfiguration from "./SmeagolConfiguration";
+import React, { FC } from "react";
+import { Repository } from "@scm-manager/ui-types";
+import { ExternalNavLink } from "@scm-manager/ui-components";
+import { useTranslation } from "react-i18next";
 
-cfgBinder.bindGlobal("/smeagol", "scm-smeagol-plugin.nav-link", "smeagolConfig", SmeagolConfiguration);
+type Props = {
+  repository: Repository;
+  activeWhenMatch: (route: any) => boolean;
+};
+
+const SmeagolNavLink: FC<Props> = ({repository, activeWhenMatch}) => {
+  const [t] = useTranslation("plugins");
+
+  const smeagolLink = repository._links.smeagolWiki;
+
+  console.log(smeagolLink)
+
+  return (
+    <ExternalNavLink
+      to={smeagolLink.href}
+      icon="fas fa-book-reader"
+      label={t("scm-smeagol-plugin.navLink.label")}
+      // activeWhenMatch={activeWhenMatch}
+      title={t("scm-smeagol-plugin.navLink.title")}
+    />
+  );
+}
+
+export default SmeagolNavLink;
