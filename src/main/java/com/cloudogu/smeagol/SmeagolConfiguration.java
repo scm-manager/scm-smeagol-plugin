@@ -24,32 +24,38 @@
 
 package com.cloudogu.smeagol;
 
-import sonia.scm.api.v2.resources.LinkBuilder;
-import sonia.scm.api.v2.resources.ScmPathInfoStore;
+import lombok.Getter;
+import lombok.Setter;
+import sonia.scm.config.ConfigurationPermissions;
+import sonia.scm.store.ConfigurationStore;
+import sonia.scm.store.ConfigurationStoreFactory;
 
 import javax.inject.Inject;
-import javax.inject.Provider;
+import javax.xml.bind.annotation.XmlRootElement;
 
-class SmeagolLinkBuilder {
+@XmlRootElement(name = "smeagol")
+class SmeagolConfiguration {
 
-  private final Provider<ScmPathInfoStore> scmPathInfoStore;
+  private final ConfigurationStore<Config> configStore;
 
   @Inject
-  SmeagolLinkBuilder(Provider<ScmPathInfoStore> scmPathInfoStore) {
-    this.scmPathInfoStore = scmPathInfoStore;
+  public SmeagolConfiguration(ConfigurationStoreFactory storeFactory) {
+    this.configStore = storeFactory.withType(Config.class).withName("smeagol").build();
   }
 
-  String getRepositoriesLink() {
-    return new LinkBuilder(scmPathInfoStore.get().get(), SmeagolResource.class)
-      .method("loadRepositories")
-      .parameters()
-      .href();
+  Config get() {
+    return configStore.getOptional().orElse(new Config());
   }
 
-  String getConfigurationLink() {
-    return new LinkBuilder(scmPathInfoStore.get().get(), SmeagolResource.class)
-      .method("getConfiguration")
-      .parameters()
-      .href();
+  void set(Config config) {
+    ConfigurationPermissions.write("smeagol").check();
+    configStore.set(config);
+  }
+
+  @Getter
+  @Setter
+  static class Config {
+    private boolean enabled;
+    private String smeagolUrl;
   }
 }

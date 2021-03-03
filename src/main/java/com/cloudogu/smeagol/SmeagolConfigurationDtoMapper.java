@@ -24,32 +24,29 @@
 
 package com.cloudogu.smeagol;
 
-import sonia.scm.api.v2.resources.LinkBuilder;
-import sonia.scm.api.v2.resources.ScmPathInfoStore;
+import com.google.common.annotations.VisibleForTesting;
+import de.otto.edison.hal.Link;
+import de.otto.edison.hal.Links;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.ObjectFactory;
 
 import javax.inject.Inject;
-import javax.inject.Provider;
 
-class SmeagolLinkBuilder {
-
-  private final Provider<ScmPathInfoStore> scmPathInfoStore;
+@Mapper
+abstract class SmeagolConfigurationDtoMapper {
 
   @Inject
-  SmeagolLinkBuilder(Provider<ScmPathInfoStore> scmPathInfoStore) {
-    this.scmPathInfoStore = scmPathInfoStore;
-  }
+  @VisibleForTesting
+  SmeagolLinkBuilder linkBuilder;
 
-  String getRepositoriesLink() {
-    return new LinkBuilder(scmPathInfoStore.get().get(), SmeagolResource.class)
-      .method("loadRepositories")
-      .parameters()
-      .href();
-  }
+  @Mapping(target = "attributes", ignore = true)
+  abstract SmeagolConfigurationDto map(SmeagolConfiguration.Config configuration);
 
-  String getConfigurationLink() {
-    return new LinkBuilder(scmPathInfoStore.get().get(), SmeagolResource.class)
-      .method("getConfiguration")
-      .parameters()
-      .href();
+  abstract SmeagolConfiguration.Config map(SmeagolConfigurationDto configuration);
+
+  @ObjectFactory
+  SmeagolConfigurationDto createDto() {
+    return new SmeagolConfigurationDto(Links.linkingTo().single(Link.self(linkBuilder.getConfigurationLink())).build());
   }
 }

@@ -29,7 +29,10 @@ import de.otto.edison.hal.HalRepresentation;
 import sonia.scm.security.AllowAnonymousAccess;
 
 import javax.inject.Inject;
+import javax.validation.Valid;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
@@ -42,11 +45,15 @@ public class SmeagolResource {
 
   private final SmeagolRepositoryStore store;
   private final SmeagolLinkBuilder smeagolLinkBuilder;
+  private final SmeagolConfiguration configuration;
+  private final SmeagolConfigurationDtoMapper configurationMapper;
 
   @Inject
-  SmeagolResource(SmeagolRepositoryStore store, SmeagolLinkBuilder smeagolLinkBuilder) {
+  SmeagolResource(SmeagolRepositoryStore store, SmeagolLinkBuilder smeagolLinkBuilder, SmeagolConfiguration configuration, SmeagolConfigurationDtoMapper configurationMapper) {
     this.store = store;
     this.smeagolLinkBuilder = smeagolLinkBuilder;
+    this.configuration = configuration;
+    this.configurationMapper = configurationMapper;
   }
 
   @GET
@@ -57,5 +64,19 @@ public class SmeagolResource {
       linkingTo().single(link("self", smeagolLinkBuilder.getRepositoriesLink())).build(),
       Embedded.embedded("repositories", store.getRepositories())
     );
+  }
+
+  @GET
+  @Path("configuration")
+  @Produces("application/json")
+  public SmeagolConfigurationDto getConfiguration() {
+    return configurationMapper.map(configuration.get());
+  }
+
+  @PUT
+  @Path("configuration")
+  @Consumes("application/json")
+  public void setConfiguration(@Valid SmeagolConfigurationDto configurationDto) {
+    configuration.set(configurationMapper.map(configurationDto));
   }
 }

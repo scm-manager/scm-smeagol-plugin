@@ -24,32 +24,22 @@
 
 package com.cloudogu.smeagol;
 
-import sonia.scm.api.v2.resources.LinkBuilder;
-import sonia.scm.api.v2.resources.ScmPathInfoStore;
+import de.otto.edison.hal.HalRepresentation;
+import de.otto.edison.hal.Links;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import javax.inject.Inject;
-import javax.inject.Provider;
+@Getter
+@Setter
+@NoArgsConstructor
+@SuppressWarnings("java:S2160") // we have no definition for equals here
+class SmeagolConfigurationDto extends HalRepresentation {
 
-class SmeagolLinkBuilder {
+  private boolean enabled;
+  private String smeagolUrl;
 
-  private final Provider<ScmPathInfoStore> scmPathInfoStore;
-
-  @Inject
-  SmeagolLinkBuilder(Provider<ScmPathInfoStore> scmPathInfoStore) {
-    this.scmPathInfoStore = scmPathInfoStore;
-  }
-
-  String getRepositoriesLink() {
-    return new LinkBuilder(scmPathInfoStore.get().get(), SmeagolResource.class)
-      .method("loadRepositories")
-      .parameters()
-      .href();
-  }
-
-  String getConfigurationLink() {
-    return new LinkBuilder(scmPathInfoStore.get().get(), SmeagolResource.class)
-      .method("getConfiguration")
-      .parameters()
-      .href();
+  public SmeagolConfigurationDto(Links links) {
+    super(links);
   }
 }

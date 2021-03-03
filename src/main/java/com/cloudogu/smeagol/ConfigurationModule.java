@@ -24,32 +24,16 @@
 
 package com.cloudogu.smeagol;
 
-import sonia.scm.api.v2.resources.LinkBuilder;
-import sonia.scm.api.v2.resources.ScmPathInfoStore;
+import com.google.inject.AbstractModule;
+import org.mapstruct.factory.Mappers;
+import sonia.scm.plugin.Extension;
 
-import javax.inject.Inject;
-import javax.inject.Provider;
+@Extension
+public class ConfigurationModule extends AbstractModule {
 
-class SmeagolLinkBuilder {
-
-  private final Provider<ScmPathInfoStore> scmPathInfoStore;
-
-  @Inject
-  SmeagolLinkBuilder(Provider<ScmPathInfoStore> scmPathInfoStore) {
-    this.scmPathInfoStore = scmPathInfoStore;
-  }
-
-  String getRepositoriesLink() {
-    return new LinkBuilder(scmPathInfoStore.get().get(), SmeagolResource.class)
-      .method("loadRepositories")
-      .parameters()
-      .href();
-  }
-
-  String getConfigurationLink() {
-    return new LinkBuilder(scmPathInfoStore.get().get(), SmeagolResource.class)
-      .method("getConfiguration")
-      .parameters()
-      .href();
+  @Override
+  protected void configure() {
+    bind(SmeagolConfigurationDtoMapper.class).to(Mappers.getMapper(SmeagolConfigurationDtoMapper.class).getClass());
   }
 }
+
