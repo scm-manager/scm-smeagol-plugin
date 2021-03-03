@@ -21,42 +21,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+import React, { FC } from "react";
+import { useTranslation } from "react-i18next";
+import { Title, Configuration } from "@scm-manager/ui-components";
+import SmeagolConfigurationForm from "./SmeagolConfigurationForm";
 
-package com.cloudogu.smeagol;
+type Props = {
+  link: string;
+};
 
-import lombok.Getter;
-import lombok.Setter;
-import sonia.scm.config.ConfigurationPermissions;
-import sonia.scm.store.ConfigurationStore;
-import sonia.scm.store.ConfigurationStoreFactory;
-
-import javax.inject.Inject;
-import javax.xml.bind.annotation.XmlRootElement;
-
-@XmlRootElement(name = "smeagol")
-class SmeagolConfiguration {
-
-  private final ConfigurationStore<Config> configStore;
-
-  @Inject
-  public SmeagolConfiguration(ConfigurationStoreFactory storeFactory) {
-    this.configStore = storeFactory.withType(Config.class).withName("smeagol").build();
-  }
-
-  Config get() {
-    return configStore.getOptional().orElse(new Config());
-  }
-
-  void set(Config config) {
-    ConfigurationPermissions.write("smeagol").check();
-    configStore.set(config);
-  }
-
-  @Getter
-  @Setter
-  @XmlRootElement(name = "smeagol")
-  static class Config {
-    private boolean enabled;
-    private String smeagolUrl = "";
-  }
+const SmeagolConfiguration: FC<Props> = ({link}) => {
+  const [ t ] = useTranslation("plugins")
+  return (
+    <>
+      <Title title={t("scm-smeagol-plugin.form.header")} />
+      <Configuration link={link} render={props => <SmeagolConfigurationForm {...props} />} />
+    </>
+  );
 }
+
+export default SmeagolConfiguration;

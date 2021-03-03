@@ -1,0 +1,23 @@
+{
+  "scm-smeagol-plugin": {
+    "nav-link": "Smeagol",
+    "form": {
+      "header": "Global Smeagol Configuration",
+      "enabled": "Enabled",
+      "enabledHelp": "If \"Enabled\" SCM-Manager creates a link in the navigation for repositories with a Smeagol wiki that leads to this wiki.",
+      "url": "Smeagol Server URL",
+      "urlHelp": "Url of Smeagol server."
+    },
+    "configurationChangedSuccess": "Configuration changed"
+  },
+  "permissions": {
+    "configuration": {
+      "write": {
+        "smeagol": {
+          "displayName": "Modify Smeagol configuration",
+          "description": "May modify the Smeagol configuration"
+        }
+      }
+    }
+  }
+}

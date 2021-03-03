@@ -30,8 +30,13 @@ import de.otto.edison.hal.Links;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ObjectFactory;
+import sonia.scm.config.ConfigurationPermissions;
 
 import javax.inject.Inject;
+
+import static de.otto.edison.hal.Link.link;
+import static de.otto.edison.hal.Link.self;
+import static de.otto.edison.hal.Links.linkingTo;
 
 @Mapper
 abstract class SmeagolConfigurationDtoMapper {
@@ -47,6 +52,11 @@ abstract class SmeagolConfigurationDtoMapper {
 
   @ObjectFactory
   SmeagolConfigurationDto createDto() {
-    return new SmeagolConfigurationDto(Links.linkingTo().single(Link.self(linkBuilder.getConfigurationLink())).build());
+    Links.Builder linkBuilder = linkingTo()
+      .single(self(this.linkBuilder.getConfigurationLink()));
+    if (ConfigurationPermissions.write("smeagol").isPermitted()) {
+      linkBuilder.single(link("update", this.linkBuilder.getConfigurationLink()));
+    }
+    return new SmeagolConfigurationDto(linkBuilder.build());
   }
 }

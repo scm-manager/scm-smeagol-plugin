@@ -21,42 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+import { ConfigurationBinder as cfgBinder } from "@scm-manager/ui-components";
+import SmeagolConfiguration from "./SmeagolConfiguration";
 
-package com.cloudogu.smeagol;
-
-import lombok.Getter;
-import lombok.Setter;
-import sonia.scm.config.ConfigurationPermissions;
-import sonia.scm.store.ConfigurationStore;
-import sonia.scm.store.ConfigurationStoreFactory;
-
-import javax.inject.Inject;
-import javax.xml.bind.annotation.XmlRootElement;
-
-@XmlRootElement(name = "smeagol")
-class SmeagolConfiguration {
-
-  private final ConfigurationStore<Config> configStore;
-
-  @Inject
-  public SmeagolConfiguration(ConfigurationStoreFactory storeFactory) {
-    this.configStore = storeFactory.withType(Config.class).withName("smeagol").build();
-  }
-
-  Config get() {
-    return configStore.getOptional().orElse(new Config());
-  }
-
-  void set(Config config) {
-    ConfigurationPermissions.write("smeagol").check();
-    configStore.set(config);
-  }
-
-  @Getter
-  @Setter
-  @XmlRootElement(name = "smeagol")
-  static class Config {
-    private boolean enabled;
-    private String smeagolUrl = "";
-  }
-}
+cfgBinder.bindGlobal("/smeagol", "scm-smeagol-plugin.nav-link", "smeagolConfig", SmeagolConfiguration);

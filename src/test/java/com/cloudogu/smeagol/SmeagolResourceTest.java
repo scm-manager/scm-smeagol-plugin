@@ -24,8 +24,12 @@
 
 package com.cloudogu.smeagol;
 
+import com.cloudogu.smeagol.SmeagolConfiguration.Config;
+import org.apache.shiro.subject.Subject;
+import org.apache.shiro.util.ThreadContext;
 import org.jboss.resteasy.mock.MockHttpRequest;
 import org.jboss.resteasy.mock.MockHttpResponse;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -63,7 +67,8 @@ class SmeagolResourceTest {
   private SmeagolLinkBuilder smeagolLinkBuilder;
   @Mock
   private SmeagolConfiguration configuration;
-
+  @Mock
+  private Subject subject;
 
   private final MockHttpResponse response = new MockHttpResponse();
 
@@ -73,6 +78,16 @@ class SmeagolResourceTest {
     mapper.linkBuilder = smeagolLinkBuilder;
     SmeagolResource resource = new SmeagolResource(store, smeagolLinkBuilder, configuration, mapper);
     dispatcher.addSingletonResource(resource);
+  }
+
+  @BeforeEach
+  void mockSubject() {
+    ThreadContext.bind(subject);
+  }
+
+  @AfterEach
+  void cleanup() {
+    ThreadContext.unbindSubject();
   }
 
   @BeforeEach
@@ -99,7 +114,7 @@ class SmeagolResourceTest {
 
   @Test
   void shouldGetConfiguration() throws URISyntaxException, UnsupportedEncodingException {
-    SmeagolConfiguration.Config config = new SmeagolConfiguration.Config();
+    Config config = new Config();
     config.setSmeagolUrl("http://smeagol.com/");
     when(configuration.get()).thenReturn(config);
 
@@ -110,7 +125,22 @@ class SmeagolResourceTest {
     assertThat(response.getStatus()).isEqualTo(SC_OK);
     assertThat(response.getContentAsString())
       .contains("\"smeagolUrl\":\"http://smeagol.com/\"")
-      .contains("\"self\":{\"href\":\"/v2/smeagol/configuration\"}");
+      .contains("\"self\":{\"href\":\"/v2/smeagol/configuration\"}")
+      .doesNotContain("\"update\"");
+  }
+
+  @Test
+  void shouldAddConfigurationUpdateLink() throws URISyntaxException, UnsupportedEncodingException {
+    when(configuration.get()).thenReturn(new Config());
+    when(subject.isPermitted("configuration:write:smeagol")).thenReturn(true);
+
+    MockHttpRequest request = get("/v2/smeagol/configuration");
+
+    dispatcher.invoke(request, response);
+
+    assertThat(response.getStatus()).isEqualTo(SC_OK);
+    assertThat(response.getContentAsString())
+      .contains("\"update\":{\"href\":\"/v2/smeagol/configuration\"}");
   }
 
   @Test
