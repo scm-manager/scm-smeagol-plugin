@@ -26,7 +26,10 @@ package com.cloudogu.smeagol;
 
 import sonia.scm.repository.Repository;
 
-public class SmeagolRepositoryFilter {
+final class SmeagolRepositoryFilter {
+
+  private SmeagolRepositoryFilter() {
+  }
 
   static boolean isPotentiallySmeagolRelevant(Repository r) {
     return "git".equals(r.getType());
