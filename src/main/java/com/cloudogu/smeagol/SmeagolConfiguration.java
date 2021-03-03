@@ -31,9 +31,10 @@ import sonia.scm.store.ConfigurationStore;
 import sonia.scm.store.ConfigurationStoreFactory;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement(name = "smeagol")
+@Singleton
 class SmeagolConfiguration {
 
   private final ConfigurationStore<Config> configStore;
