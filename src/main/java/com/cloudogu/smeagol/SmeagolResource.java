@@ -35,9 +35,12 @@ import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import java.util.List;
 
 import static de.otto.edison.hal.Link.link;
 import static de.otto.edison.hal.Links.linkingTo;
+import static java.util.stream.Collectors.toList;
 
 @AllowAnonymousAccess
 @Path("v2/smeagol/")
@@ -59,10 +62,14 @@ public class SmeagolResource {
   @GET
   @Path("repositories")
   @Produces("application/json")
-  public HalRepresentation loadRepositories() {
+  public HalRepresentation loadRepositories(@QueryParam("smeagolOnly") boolean smeagolOnly) {
+    List<SmeagolRepositoryInformationDto> repositories = store.getRepositories();
+    if (smeagolOnly) {
+      repositories = repositories.stream().filter(SmeagolRepositoryInformationDto::isSmeagolWiki).collect(toList());
+    }
     return new HalRepresentation(
       linkingTo().single(link("self", smeagolLinkBuilder.getRepositoriesLink())).build(),
-      Embedded.embedded("repositories", store.getRepositories())
+      Embedded.embedded("repositories", repositories)
     );
   }
 

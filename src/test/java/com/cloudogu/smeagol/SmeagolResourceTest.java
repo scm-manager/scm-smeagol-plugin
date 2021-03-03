@@ -113,6 +113,19 @@ class SmeagolResourceTest {
   }
 
   @Test
+  void shouldGetSmeagolRepositoriesOnly() throws URISyntaxException, UnsupportedEncodingException {
+    when(store.getRepositories()).thenReturn(singletonList(new SmeagolRepositoryInformationDto(REPOSITORY, new RepositoryInformation("main", false))));
+
+    MockHttpRequest request = get("/v2/smeagol/repositories?smeagolOnly=true");
+
+    dispatcher.invoke(request, response);
+
+    assertThat(response.getStatus()).isEqualTo(SC_OK);
+    assertThat(response.getContentAsString())
+      .contains("\"repositories\":[]");
+  }
+
+  @Test
   void shouldGetConfiguration() throws URISyntaxException, UnsupportedEncodingException {
     Config config = new Config();
     config.setSmeagolUrl("http://smeagol.com/");
