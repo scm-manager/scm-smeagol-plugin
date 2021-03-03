@@ -127,7 +127,9 @@ class SmeagolRepositoryStore implements Initable {
         .get()
         .forEach(repositoryInformation::put);
     } catch (InterruptedException e) {
-      // nothing to do
+      LOG.warn("Got interrupted while initializing repository information", e);
+      // Restore interrupted state...
+      Thread.currentThread().interrupt();
     } catch (ExecutionException e) {
       LOG.warn("Got an exception while initializing repository information", e);
     } finally {
