@@ -35,7 +35,7 @@ import javax.inject.Singleton;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @Singleton
-class SmeagolConfiguration {
+public class SmeagolConfiguration {
 
   private final ConfigurationStore<Config> configStore;
 
@@ -44,11 +44,11 @@ class SmeagolConfiguration {
     this.configStore = storeFactory.withType(Config.class).withName("smeagol").build();
   }
 
-  Config get() {
+  public Config get() {
     return configStore.getOptional().orElse(new Config());
   }
 
-  void set(Config config) {
+  public void set(Config config) {
     ConfigurationPermissions.write("smeagol").check();
     configStore.set(config);
   }
@@ -56,7 +56,7 @@ class SmeagolConfiguration {
   @Getter
   @Setter
   @XmlRootElement(name = "smeagol")
-  static class Config {
+  public static class Config {
     private boolean enabled;
     private String smeagolUrl = "";
   }
