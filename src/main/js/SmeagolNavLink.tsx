@@ -31,22 +31,18 @@ type Props = {
   activeWhenMatch: (route: any) => boolean;
 };
 
-const SmeagolNavLink: FC<Props> = ({repository, activeWhenMatch}) => {
+const SmeagolNavLink: FC<Props> = ({ repository, activeWhenMatch }) => {
   const [t] = useTranslation("plugins");
 
   const smeagolLink = repository._links.smeagolWiki;
-
-  console.log(smeagolLink)
 
   return (
     <ExternalNavLink
       to={smeagolLink.href}
       icon="fas fa-book-reader"
       label={t("scm-smeagol-plugin.navLink.label")}
-      // activeWhenMatch={activeWhenMatch}
-      title={t("scm-smeagol-plugin.navLink.title")}
     />
   );
-}
+};
 
 export default SmeagolNavLink;

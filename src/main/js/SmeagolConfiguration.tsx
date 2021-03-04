@@ -30,14 +30,14 @@ type Props = {
   link: string;
 };
 
-const SmeagolConfiguration: FC<Props> = ({link}) => {
-  const [ t ] = useTranslation("plugins")
+const SmeagolConfiguration: FC<Props> = ({ link }) => {
+  const [t] = useTranslation("plugins");
   return (
     <>
       <Title title={t("scm-smeagol-plugin.form.header")} />
       <Configuration link={link} render={props => <SmeagolConfigurationForm {...props} />} />
     </>
   );
-}
+};
 
 export default SmeagolConfiguration;

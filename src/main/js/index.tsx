@@ -33,8 +33,7 @@ const smeagolWikiPredicate = (props: object) => {
   return props.repository && props.repository._links.smeagolWiki;
 };
 
-const SmeagolNavLinkFactory = ({repository}) => {
-  console.log(repository)
+const SmeagolNavLinkFactory = ({ repository }) => {
   return <SmeagolNavLink repository={repository} activeWhenMatch={smeagolWikiPredicate} />;
 };
 

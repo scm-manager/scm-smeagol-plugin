@@ -37,8 +37,7 @@ type Props = {
   onConfigurationChange: (p1: GlobalConfiguration, p2: boolean) => void;
 };
 
-const SmeagolConfigurationForm: FC<Props> = ({initialConfiguration, onConfigurationChange}) => {
-
+const SmeagolConfigurationForm: FC<Props> = ({ initialConfiguration, onConfigurationChange }) => {
   const [changedConfig, setChangedConfig] = useState(initialConfiguration);
   const [configurationChanged, setConfigurationChanged] = useState(false);
   const [t] = useTranslation("plugins");
@@ -47,12 +46,7 @@ const SmeagolConfigurationForm: FC<Props> = ({initialConfiguration, onConfigurat
     if (configurationChanged) {
       return (
         <div className="notification is-info">
-          <button
-            className="delete"
-            onClick={() =>
-              setConfigurationChanged(false)
-            }
-          />
+          <button className="delete" onClick={() => setConfigurationChanged(false)} />
           {t("scm-smeagol-plugin.configurationChangedSuccess")}
         </div>
       );
@@ -61,10 +55,10 @@ const SmeagolConfigurationForm: FC<Props> = ({initialConfiguration, onConfigurat
   };
 
   const valueChangeHandler = (value: string, name: string) => {
-    const newConfig = {...changedConfig, [name]: value};
+    const newConfig = { ...changedConfig, [name]: value };
     setChangedConfig(newConfig);
     onConfigurationChange(newConfig, true);
-  }
+  };
 
   return (
     <>
@@ -87,6 +81,6 @@ const SmeagolConfigurationForm: FC<Props> = ({initialConfiguration, onConfigurat
       />
     </>
   );
-}
+};
 
 export default SmeagolConfigurationForm;
