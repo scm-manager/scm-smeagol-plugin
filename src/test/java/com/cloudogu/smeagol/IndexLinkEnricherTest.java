@@ -24,6 +24,10 @@
 
 package com.cloudogu.smeagol;
 
+import org.apache.shiro.subject.Subject;
+import org.apache.shiro.util.ThreadContext;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
@@ -33,6 +37,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import sonia.scm.api.v2.resources.HalAppender;
 import sonia.scm.api.v2.resources.HalEnricherContext;
 
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -46,22 +54,54 @@ class IndexLinkEnricherTest {
   private IndexLinkEnricher enricher;
 
   @Mock
+  private Subject subject;
+  @Mock
   private HalEnricherContext context;
   @Mock
   private HalAppender appender;
   @Mock(answer = Answers.RETURNS_SELF)
   private HalAppender.LinkArrayBuilder linkArrayBuilder;
 
-  @Test
-  void shouldAppendLink() {
-    when(appender.linkArrayBuilder("smeagol")).thenReturn(linkArrayBuilder);
-    when(smeagolLinkBuilder.getRepositoriesLink()).thenReturn("/smeagol/repositories");
-    when(smeagolLinkBuilder.getConfigurationLink()).thenReturn("/smeagol/configuration");
+  @BeforeEach
+  void initSubject() {
+    ThreadContext.bind(subject);
+  }
 
+  @AfterEach
+  void cleanup() {
+    ThreadContext.unbindSubject();
+  }
+
+  @BeforeEach
+  void mockLinks() {
+    lenient().when(appender.linkArrayBuilder("smeagol")).thenReturn(linkArrayBuilder);
+    lenient().when(smeagolLinkBuilder.getRepositoriesLink()).thenReturn("/smeagol/repositories");
+    lenient().when(smeagolLinkBuilder.getConfigurationLink()).thenReturn("/smeagol/configuration");
+  }
+
+  @Test
+  void shouldAppendSmeagolLink() {
     enricher.enrich(context, appender);
 
     verify(linkArrayBuilder).append("repositories", "/smeagol/repositories");
     verify(linkArrayBuilder).build();
+  }
+
+  @Test
+  void shouldNotAppendConfigLinkWithoutUser() {
+    when(subject.isAuthenticated()).thenReturn(false);
+
+    enricher.enrich(context, appender);
+
+    verify(appender, never()).appendLink(eq("smeagolConfig"), anyString());
+  }
+
+  @Test
+  void shouldAppendConfigForUsersLink() {
+    when(subject.isAuthenticated()).thenReturn(true);
+
+    enricher.enrich(context, appender);
+
     verify(appender).appendLink("smeagolConfig", "/smeagol/configuration");
   }
 }

@@ -25,7 +25,6 @@
 package com.cloudogu.smeagol;
 
 import com.google.common.annotations.VisibleForTesting;
-import de.otto.edison.hal.Link;
 import de.otto.edison.hal.Links;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -52,11 +51,11 @@ abstract class SmeagolConfigurationDtoMapper {
 
   @ObjectFactory
   SmeagolConfigurationDto createDto() {
-    Links.Builder linkBuilder = linkingTo()
+    Links.Builder links = linkingTo()
       .single(self(this.linkBuilder.getConfigurationLink()));
     if (ConfigurationPermissions.write("smeagol").isPermitted()) {
-      linkBuilder.single(link("update", this.linkBuilder.getConfigurationLink()));
+      links.single(link("update", this.linkBuilder.getConfigurationLink()));
     }
-    return new SmeagolConfigurationDto(linkBuilder.build());
+    return new SmeagolConfigurationDto(links.build());
   }
 }

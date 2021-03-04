@@ -23,6 +23,7 @@
  */
 package com.cloudogu.smeagol;
 
+import org.apache.shiro.SecurityUtils;
 import sonia.scm.api.v2.resources.Enrich;
 import sonia.scm.api.v2.resources.HalAppender;
 import sonia.scm.api.v2.resources.HalEnricher;
@@ -48,6 +49,8 @@ class IndexLinkEnricher implements HalEnricher {
     appender.linkArrayBuilder("smeagol")
       .append("repositories", smeagolLinkBuilder.getRepositoriesLink())
       .build();
-    appender.appendLink("smeagolConfig", smeagolLinkBuilder.getConfigurationLink());
+    if (SecurityUtils.getSubject().isAuthenticated()) {
+      appender.appendLink("smeagolConfig", smeagolLinkBuilder.getConfigurationLink());
+    }
   }
 }
