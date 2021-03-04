@@ -7,4 +7,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Added
 - REST endpoint for Smeagol ([#1](https://github.com/scm-manager/scm-smeagol-plugin/pull/1))
-- Navigation iteo to jump to Smeagol from repository ([#1](https://github.com/scm-manager/scm-smeagol-plugin/pull/1))
+- Navigation item to jump to Smeagol from repository ([#1](https://github.com/scm-manager/scm-smeagol-plugin/pull/1))

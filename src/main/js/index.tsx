@@ -34,7 +34,7 @@ const smeagolWikiPredicate = (props: object) => {
 };
 
 const SmeagolNavLinkFactory = ({ repository }) => {
-  return <SmeagolNavLink repository={repository} activeWhenMatch={smeagolWikiPredicate} />;
+  return <SmeagolNavLink repository={repository} />;
 };
 
 binder.bind("repository.navigation", SmeagolNavLinkFactory, smeagolWikiPredicate);

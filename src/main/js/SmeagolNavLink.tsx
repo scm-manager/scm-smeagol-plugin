@@ -28,20 +28,15 @@ import { useTranslation } from "react-i18next";
 
 type Props = {
   repository: Repository;
-  activeWhenMatch: (route: any) => boolean;
 };
 
-const SmeagolNavLink: FC<Props> = ({ repository, activeWhenMatch }) => {
+const SmeagolNavLink: FC<Props> = ({ repository }) => {
   const [t] = useTranslation("plugins");
 
   const smeagolLink = repository._links.smeagolWiki;
 
   return (
-    <ExternalNavLink
-      to={smeagolLink.href}
-      icon="fas fa-book-reader"
-      label={t("scm-smeagol-plugin.navLink.label")}
-    />
+    <ExternalNavLink to={smeagolLink.href} icon="fas fa-book-reader" label={t("scm-smeagol-plugin.navLink.label")} />
   );
 };
 
