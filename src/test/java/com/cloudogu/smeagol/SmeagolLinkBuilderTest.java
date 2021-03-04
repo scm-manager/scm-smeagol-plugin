@@ -45,4 +45,16 @@ class SmeagolLinkBuilderTest {
 
     assertThat(link).isEqualTo("/v2/smeagol/repositories");
   }
+
+  @Test
+  void shouldGenerateConfigurationLink() {
+    ScmPathInfoStore pathInfoStore = new ScmPathInfoStore();
+    pathInfoStore.set(() -> URI.create("/"));
+
+    SmeagolLinkBuilder smeagolLinkBuilder = new SmeagolLinkBuilder(of(pathInfoStore));
+
+    String link = smeagolLinkBuilder.getConfigurationLink();
+
+    assertThat(link).isEqualTo("/v2/smeagol/configuration");
+  }
 }
