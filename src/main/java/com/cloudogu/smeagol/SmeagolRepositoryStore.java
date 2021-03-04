@@ -132,6 +132,7 @@ class SmeagolRepositoryStore implements Initable {
 
   private void init() {
     try {
+      LOG.info("Starting initialization of smeagol repository information");
       Executors.newSingleThreadExecutor()
         .submit(informationInitializer)
         .get()
@@ -143,6 +144,7 @@ class SmeagolRepositoryStore implements Initable {
     } catch (ExecutionException e) {
       LOG.warn("Got an exception while initializing repository information", e);
     } finally {
+      LOG.info("Finished initialization of smeagol repository information");
       initializeLatch.countDown();
     }
   }
