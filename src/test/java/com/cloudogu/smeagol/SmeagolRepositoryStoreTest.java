@@ -161,7 +161,7 @@ class SmeagolRepositoryStoreTest {
       SmeagolRepositoryInformationDto information = store.getRepositories().get(0);
 
       assertThat(information.getDefaultBranch()).isEqualTo("other");
-      assertThat(information.isSmeagolWiki()).isTrue();
+      assertThat(information.isWikiEnabled()).isTrue();
     }
 
     @Test
@@ -192,7 +192,7 @@ class SmeagolRepositoryStoreTest {
 
       assertThat(information.getId()).isEqualTo("4");
       assertThat(information.getDefaultBranch()).isEqualTo("new");
-      assertThat(information.isSmeagolWiki()).isTrue();
+      assertThat(information.isWikiEnabled()).isTrue();
     }
 
     @Test
@@ -205,7 +205,7 @@ class SmeagolRepositoryStoreTest {
 
       assertThat(information.getId()).isEqualTo("4");
       assertThat(information.getDefaultBranch()).isEqualTo("new");
-      assertThat(information.isSmeagolWiki()).isTrue();
+      assertThat(information.isWikiEnabled()).isTrue();
     }
   }
 

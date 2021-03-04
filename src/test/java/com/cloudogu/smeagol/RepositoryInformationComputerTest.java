@@ -111,7 +111,7 @@ class RepositoryInformationComputerTest {
       RepositoryInformation information = computer.compute(REPOSITORY);
 
       assertThat(information.getDefaultBranch()).isNull();
-      assertThat(information.isSmeagolWiki()).isFalse();
+      assertThat(information.isWikiEnabled()).isFalse();
     }
 
     @Test
@@ -122,7 +122,7 @@ class RepositoryInformationComputerTest {
 
       RepositoryInformation information = computer.compute(REPOSITORY);
 
-      assertThat(information.isSmeagolWiki()).isTrue();
+      assertThat(information.isWikiEnabled()).isTrue();
     }
 
     @Test
@@ -132,7 +132,7 @@ class RepositoryInformationComputerTest {
 
       RepositoryInformation information = computer.compute(REPOSITORY);
 
-      assertThat(information.isSmeagolWiki()).isFalse();
+      assertThat(information.isWikiEnabled()).isFalse();
     }
 
     private void mockEmptyBrowseResult() throws IOException {

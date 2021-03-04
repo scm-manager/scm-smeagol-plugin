@@ -38,7 +38,7 @@ class SmeagolRepositoryInformationDto extends HalRepresentation {
   private final String type;
   private final String description;
   private final String defaultBranch;
-  private final boolean smeagolWiki;
+  private final boolean wikiEnabled;
 
   SmeagolRepositoryInformationDto(Repository repository, RepositoryInformation information) {
     this.namespace = repository.getNamespace();
@@ -47,6 +47,6 @@ class SmeagolRepositoryInformationDto extends HalRepresentation {
     this.description = repository.getDescription();
     this.type = repository.getType();
     this.defaultBranch = information.getDefaultBranch();
-    this.smeagolWiki = information.isSmeagolWiki();
+    this.wikiEnabled = information.isWikiEnabled();
   }
 }

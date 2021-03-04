@@ -62,10 +62,10 @@ public class SmeagolResource {
   @GET
   @Path("repositories")
   @Produces("application/json")
-  public HalRepresentation loadRepositories(@QueryParam("smeagolOnly") boolean smeagolOnly) {
+  public HalRepresentation loadRepositories(@QueryParam("wikiEnabled") boolean smeagolOnly) {
     List<SmeagolRepositoryInformationDto> repositories = store.getRepositories();
     if (smeagolOnly) {
-      repositories = repositories.stream().filter(SmeagolRepositoryInformationDto::isSmeagolWiki).collect(toList());
+      repositories = repositories.stream().filter(SmeagolRepositoryInformationDto::isWikiEnabled).collect(toList());
     }
     return new HalRepresentation(
       linkingTo().single(link("self", smeagolLinkBuilder.getRepositoriesLink())).build(),

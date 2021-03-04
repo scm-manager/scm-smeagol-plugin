@@ -24,21 +24,16 @@
 
 package com.cloudogu.smeagol;
 
+import lombok.Getter;
+
+@Getter
 class RepositoryInformation {
 
   private final String defaultBranch;
-  private final boolean smeagolWiki;
+  private final boolean wikiEnabled;
 
-  RepositoryInformation(String defaultBranch, boolean smeagolWiki) {
+  RepositoryInformation(String defaultBranch, boolean wikiEnabled) {
     this.defaultBranch = defaultBranch;
-    this.smeagolWiki = smeagolWiki;
-  }
-
-  public String getDefaultBranch() {
-    return defaultBranch;
-  }
-
-  public boolean isSmeagolWiki() {
-    return smeagolWiki;
+    this.wikiEnabled = wikiEnabled;
   }
 }

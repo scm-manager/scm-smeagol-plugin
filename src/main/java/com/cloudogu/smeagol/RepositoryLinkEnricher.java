@@ -50,7 +50,7 @@ public class RepositoryLinkEnricher implements HalEnricher {
   public void enrich(HalEnricherContext context, HalAppender appender) {
     if (configuration.get().isEnabled()) {
       Repository repository = context.oneRequireByType(Repository.class);
-      if (store.getFor(repository).isSmeagolWiki()) {
+      if (store.getFor(repository).isWikiEnabled()) {
         appender.appendLink("smeagolWiki", createSmeagolUrl(repository));
       }
     }

@@ -77,7 +77,7 @@ class RepositoryInformationInitializerTest {
   private Condition<RepositoryInformation> isSmeagolRelevant() {
     return new Condition<RepositoryInformation>("is smeagol relevant") {
       public boolean matches(RepositoryInformation tolkienCharacter) {
-        return tolkienCharacter.isSmeagolWiki();
+        return tolkienCharacter.isWikiEnabled();
       }
     };
   }
