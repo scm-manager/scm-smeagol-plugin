@@ -109,19 +109,25 @@ class SmeagolRepositoryStore implements Initable {
   List<SmeagolRepositoryInformationDto> getRepositories() {
     return repositoryManager.getAll(SmeagolRepositoryFilter::isPotentiallySmeagolRelevant, createComparator())
       .stream()
-      .map(this::toSmeagolRepository)
+      .map(this::getFor)
       .collect(toList());
   }
 
   SmeagolRepositoryInformationDto getFor(Repository repository) {
-    return toSmeagolRepository(repository);
-  }
-
-  private SmeagolRepositoryInformationDto toSmeagolRepository(Repository repository) {
+    waitForInitialization();
     return new SmeagolRepositoryInformationDto(
       repository,
       repositoryInformation.computeIfAbsent(repository.getId(), id -> computer.compute(repository))
     );
+  }
+
+  private void waitForInitialization() {
+    try {
+      initializeLatch.await();
+    } catch (InterruptedException e) {
+      LOG.warn("Got interrupted while waiting for initialization", e);
+      Thread.currentThread().interrupt();
+    }
   }
 
   private void init() {
