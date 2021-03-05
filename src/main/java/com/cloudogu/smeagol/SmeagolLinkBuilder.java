@@ -26,6 +26,7 @@ package com.cloudogu.smeagol;
 
 import sonia.scm.api.v2.resources.LinkBuilder;
 import sonia.scm.api.v2.resources.ScmPathInfoStore;
+import sonia.scm.util.HttpUtil;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -51,5 +52,10 @@ class SmeagolLinkBuilder {
       .method("getConfiguration")
       .parameters()
       .href();
+  }
+
+  String getUILink(SmeagolRepositoryInformation information) {
+    String rootUrl = scmPathInfoStore.get().get().getRootUri().toString();
+    return HttpUtil.concatenate(rootUrl, "repo", information.getNamespace(), information.getName());
   }
 }

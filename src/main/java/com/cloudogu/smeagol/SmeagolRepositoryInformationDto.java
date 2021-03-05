@@ -25,6 +25,7 @@
 package com.cloudogu.smeagol;
 
 import de.otto.edison.hal.HalRepresentation;
+import de.otto.edison.hal.Links;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -40,4 +41,8 @@ public class SmeagolRepositoryInformationDto extends HalRepresentation {
   private String description;
   private String defaultBranch;
   private boolean wikiEnabled;
+
+  public SmeagolRepositoryInformationDto(Links links) {
+    super(links);
+  }
 }

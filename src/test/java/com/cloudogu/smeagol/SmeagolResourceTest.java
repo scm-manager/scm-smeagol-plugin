@@ -42,6 +42,7 @@ import sonia.scm.web.RestDispatcher;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 
+import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.singletonList;
 import static javax.servlet.http.HttpServletResponse.SC_NO_CONTENT;
@@ -49,6 +50,7 @@ import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.jboss.resteasy.mock.MockHttpRequest.get;
 import static org.jboss.resteasy.mock.MockHttpRequest.put;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
@@ -77,6 +79,7 @@ class SmeagolResourceTest {
     SmeagolConfigurationDtoMapperImpl configurationMapper = new SmeagolConfigurationDtoMapperImpl();
     configurationMapper.linkBuilder = smeagolLinkBuilder;
     SmeagolRepositoryInformationDtoMapper informationMapper = new SmeagolRepositoryInformationDtoMapperImpl();
+    informationMapper.linkBuilder = smeagolLinkBuilder;
     SmeagolResource resource = new SmeagolResource(store, smeagolLinkBuilder, configuration, configurationMapper, informationMapper);
     dispatcher.addSingletonResource(resource);
   }
@@ -95,6 +98,10 @@ class SmeagolResourceTest {
   void initLinks() {
     lenient().when(smeagolLinkBuilder.getRepositoriesLink()).thenReturn("/v2/smeagol/repositories");
     lenient().when(smeagolLinkBuilder.getConfigurationLink()).thenReturn("/v2/smeagol/configuration");
+    lenient().when(smeagolLinkBuilder.getUILink(any())).thenAnswer(invocation -> {
+      SmeagolRepositoryInformation information = invocation.getArgument(0, SmeagolRepositoryInformation.class);
+      return format("/repo/%s/%s", information.getNamespace(), information.getName());
+    });
   }
 
   @Test
@@ -110,7 +117,8 @@ class SmeagolResourceTest {
       .contains("\"repositories\":[")
       .contains("\"self\":{\"href\":\"/v2/smeagol/repositories\"}")
       .contains("\"namespace\":\"hitchhiker\"")
-      .contains("\"wikiEnabled\":true");
+      .contains("\"wikiEnabled\":true")
+      .contains("\"ui\":{\"href\":\"/repo/hitchhiker/HeartOfGold\"}");
   }
 
   @Test

@@ -24,12 +24,28 @@
 
 package com.cloudogu.smeagol;
 
+import de.otto.edison.hal.Links;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.ObjectFactory;
+
+import javax.inject.Inject;
+
+import static de.otto.edison.hal.Link.link;
+import static de.otto.edison.hal.Links.linkingTo;
 
 @Mapper
-interface SmeagolRepositoryInformationDtoMapper {
+abstract class SmeagolRepositoryInformationDtoMapper {
+
+  @Inject
+  SmeagolLinkBuilder linkBuilder;
 
   @Mapping(target = "attributes", ignore = true)
-  SmeagolRepositoryInformationDto map(SmeagolRepositoryInformation information);
+  abstract SmeagolRepositoryInformationDto map(SmeagolRepositoryInformation information);
+
+  @ObjectFactory
+  SmeagolRepositoryInformationDto create(SmeagolRepositoryInformation information) {
+    Links.Builder links = linkingTo().single(link("ui", this.linkBuilder.getUILink(information)));
+    return new SmeagolRepositoryInformationDto(links.build());
+  }
 }
