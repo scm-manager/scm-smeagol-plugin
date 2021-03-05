@@ -50,26 +50,32 @@ public class SmeagolResource {
   private final SmeagolLinkBuilder smeagolLinkBuilder;
   private final SmeagolConfiguration configuration;
   private final SmeagolConfigurationDtoMapper configurationMapper;
+  private final SmeagolRepositoryInformationDtoMapper informationMapper;
 
   @Inject
-  SmeagolResource(SmeagolRepositoryStore store, SmeagolLinkBuilder smeagolLinkBuilder, SmeagolConfiguration configuration, SmeagolConfigurationDtoMapper configurationMapper) {
+  SmeagolResource(SmeagolRepositoryStore store,
+                  SmeagolLinkBuilder smeagolLinkBuilder,
+                  SmeagolConfiguration configuration,
+                  SmeagolConfigurationDtoMapper configurationMapper,
+                  SmeagolRepositoryInformationDtoMapper informationMapper) {
     this.store = store;
     this.smeagolLinkBuilder = smeagolLinkBuilder;
     this.configuration = configuration;
     this.configurationMapper = configurationMapper;
+    this.informationMapper = informationMapper;
   }
 
   @GET
   @Path("repositories")
   @Produces("application/json")
   public HalRepresentation loadRepositories(@QueryParam("wikiEnabled") boolean smeagolOnly) {
-    List<SmeagolRepositoryInformationDto> repositories = store.getRepositories();
+    List<SmeagolRepositoryInformation> repositories = store.getRepositories();
     if (smeagolOnly) {
-      repositories = repositories.stream().filter(SmeagolRepositoryInformationDto::isWikiEnabled).collect(toList());
+      repositories = repositories.stream().filter(SmeagolRepositoryInformation::isWikiEnabled).collect(toList());
     }
     return new HalRepresentation(
       linkingTo().single(link("self", smeagolLinkBuilder.getRepositoriesLink())).build(),
-      Embedded.embedded("repositories", repositories)
+      Embedded.embedded("repositories", repositories.stream().map(informationMapper::map).collect(toList()))
     );
   }
 

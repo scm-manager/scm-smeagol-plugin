@@ -61,7 +61,7 @@ class RepositoryLinkEnricherTest {
     repository.setId("id-1");
     when(context.oneRequireByType(Repository.class)).thenReturn(repository);
     when(configuration.get()).thenReturn(createConfig(true));
-    when(store.getFor(repository)).thenReturn(new SmeagolRepositoryInformationDto(repository, new RepositoryInformation("develop", true)));
+    when(store.getFor(repository)).thenReturn(new SmeagolRepositoryInformation(repository, new RepositoryInformation("develop", true)));
 
     enricher.enrich(context, appender);
 
@@ -82,7 +82,7 @@ class RepositoryLinkEnricherTest {
     Repository repository = RepositoryTestData.createHeartOfGold();
     when(context.oneRequireByType(Repository.class)).thenReturn(repository);
     when(configuration.get()).thenReturn(createConfig(true));
-    when(store.getFor(repository)).thenReturn(new SmeagolRepositoryInformationDto(repository, new RepositoryInformation("develop", false)));
+    when(store.getFor(repository)).thenReturn(new SmeagolRepositoryInformation(repository, new RepositoryInformation("develop", false)));
 
     enricher.enrich(context, appender);
 

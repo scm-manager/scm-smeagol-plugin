@@ -74,9 +74,10 @@ class SmeagolResourceTest {
 
   @BeforeEach
   void initMocks() {
-    SmeagolConfigurationDtoMapperImpl mapper = new SmeagolConfigurationDtoMapperImpl();
-    mapper.linkBuilder = smeagolLinkBuilder;
-    SmeagolResource resource = new SmeagolResource(store, smeagolLinkBuilder, configuration, mapper);
+    SmeagolConfigurationDtoMapperImpl configurationMapper = new SmeagolConfigurationDtoMapperImpl();
+    configurationMapper.linkBuilder = smeagolLinkBuilder;
+    SmeagolRepositoryInformationDtoMapper informationMapper = new SmeagolRepositoryInformationDtoMapperImpl();
+    SmeagolResource resource = new SmeagolResource(store, smeagolLinkBuilder, configuration, configurationMapper, informationMapper);
     dispatcher.addSingletonResource(resource);
   }
 
@@ -98,7 +99,7 @@ class SmeagolResourceTest {
 
   @Test
   void shouldGetRepositories() throws URISyntaxException, UnsupportedEncodingException {
-    when(store.getRepositories()).thenReturn(singletonList(new SmeagolRepositoryInformationDto(REPOSITORY, new RepositoryInformation("main", true))));
+    when(store.getRepositories()).thenReturn(singletonList(new SmeagolRepositoryInformation(REPOSITORY, new RepositoryInformation("main", true))));
 
     MockHttpRequest request = get("/v2/smeagol/repositories");
 
@@ -114,7 +115,7 @@ class SmeagolResourceTest {
 
   @Test
   void shouldGetSmeagolRepositoriesOnly() throws URISyntaxException, UnsupportedEncodingException {
-    when(store.getRepositories()).thenReturn(singletonList(new SmeagolRepositoryInformationDto(REPOSITORY, new RepositoryInformation("main", false))));
+    when(store.getRepositories()).thenReturn(singletonList(new SmeagolRepositoryInformation(REPOSITORY, new RepositoryInformation("main", false))));
 
     MockHttpRequest request = get("/v2/smeagol/repositories?wikiEnabled=true");
 

@@ -26,27 +26,18 @@ package com.cloudogu.smeagol;
 
 import de.otto.edison.hal.HalRepresentation;
 import lombok.Getter;
-import sonia.scm.repository.Repository;
+import lombok.Setter;
 
 @Getter
+@Setter
 @SuppressWarnings("java:S2160") // we have no definition for equals/hashCode
-class SmeagolRepositoryInformationDto extends HalRepresentation {
+public class SmeagolRepositoryInformationDto extends HalRepresentation {
 
-  private final String namespace;
-  private final String name;
-  private final String id;
-  private final String type;
-  private final String description;
-  private final String defaultBranch;
-  private final boolean wikiEnabled;
-
-  SmeagolRepositoryInformationDto(Repository repository, RepositoryInformation information) {
-    this.namespace = repository.getNamespace();
-    this.name = repository.getName();
-    this.id = repository.getId();
-    this.description = repository.getDescription();
-    this.type = repository.getType();
-    this.defaultBranch = information.getDefaultBranch();
-    this.wikiEnabled = information.isWikiEnabled();
-  }
+  private String namespace;
+  private String name;
+  private String id;
+  private String type;
+  private String description;
+  private String defaultBranch;
+  private boolean wikiEnabled;
 }

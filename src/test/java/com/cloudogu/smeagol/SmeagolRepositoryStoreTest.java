@@ -124,7 +124,7 @@ class SmeagolRepositoryStoreTest {
   void shouldApplyInformation() {
     store.init(null);
 
-    List<SmeagolRepositoryInformationDto> repositories = store.getRepositories();
+    List<SmeagolRepositoryInformation> repositories = store.getRepositories();
 
     assertThat(repositories).hasSizeGreaterThan(0);
     assertThat(repositories.get(0).getId()).isEqualTo("1");
@@ -135,7 +135,7 @@ class SmeagolRepositoryStoreTest {
   void shouldFilterOtherThanGitRepositories() {
     store.init(null);
 
-    List<SmeagolRepositoryInformationDto> repositories = store.getRepositories();
+    List<SmeagolRepositoryInformation> repositories = store.getRepositories();
 
     assertThat(repositories).hasSize(2);
     assertThat(repositories).extracting("id").contains("1", "3");
@@ -158,7 +158,7 @@ class SmeagolRepositoryStoreTest {
 
       store.detectCodeChanges(new PostReceiveRepositoryHookEvent(new RepositoryHookEvent(context, REPOSITORY_1, POST_RECEIVE)));
 
-      SmeagolRepositoryInformationDto information = store.getRepositories().get(0);
+      SmeagolRepositoryInformation information = store.getRepositories().get(0);
 
       assertThat(information.getDefaultBranch()).isEqualTo("other");
       assertThat(information.isWikiEnabled()).isTrue();
@@ -188,7 +188,7 @@ class SmeagolRepositoryStoreTest {
 
       store.detectRepositoryChanges(new RepositoryEvent(CREATE, newRepository));
 
-      SmeagolRepositoryInformationDto information = store.getRepositories().get(2);
+      SmeagolRepositoryInformation information = store.getRepositories().get(2);
 
       assertThat(information.getId()).isEqualTo("4");
       assertThat(information.getDefaultBranch()).isEqualTo("new");
@@ -201,7 +201,7 @@ class SmeagolRepositoryStoreTest {
       ALL_REPOSITORIES.add(newRepository);
       when(computer.compute(newRepository)).thenReturn(createInfo(newRepository, "new", true));
 
-      SmeagolRepositoryInformationDto information = store.getRepositories().get(2);
+      SmeagolRepositoryInformation information = store.getRepositories().get(2);
 
       assertThat(information.getId()).isEqualTo("4");
       assertThat(information.getDefaultBranch()).isEqualTo("new");

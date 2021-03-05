@@ -107,16 +107,16 @@ class SmeagolRepositoryStore implements Initable {
    * Returns the repositories given by {@link RepositoryManager#getAll(int, int)} with additional
    * smeagol relevant information.
    */
-  List<SmeagolRepositoryInformationDto> getRepositories() {
+  List<SmeagolRepositoryInformation> getRepositories() {
     return repositoryManager.getAll(SmeagolRepositoryFilter::isPotentiallySmeagolRelevant, createComparator())
       .stream()
       .map(this::getFor)
       .collect(toList());
   }
 
-  SmeagolRepositoryInformationDto getFor(Repository repository) {
+  SmeagolRepositoryInformation getFor(Repository repository) {
     waitForInitialization();
-    return new SmeagolRepositoryInformationDto(
+    return new SmeagolRepositoryInformation(
       repository,
       repositoryInformation.computeIfAbsent(repository.getId(), id -> computer.compute(repository))
     );

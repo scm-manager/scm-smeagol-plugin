@@ -24,17 +24,28 @@
 
 package com.cloudogu.smeagol;
 
-import com.google.inject.AbstractModule;
-import org.mapstruct.factory.Mappers;
-import sonia.scm.plugin.Extension;
+import lombok.Getter;
+import sonia.scm.repository.Repository;
 
-@Extension
-public class ConfigurationModule extends AbstractModule {
+@Getter
+@SuppressWarnings("java:S2160") // we have no definition for equals/hashCode
+class SmeagolRepositoryInformation {
 
-  @Override
-  protected void configure() {
-    bind(SmeagolConfigurationDtoMapper.class).to(Mappers.getMapper(SmeagolConfigurationDtoMapper.class).getClass());
-    bind(SmeagolRepositoryInformationDtoMapper.class).to(Mappers.getMapperClass(SmeagolRepositoryInformationDtoMapper.class));
+  private final String namespace;
+  private final String name;
+  private final String id;
+  private final String type;
+  private final String description;
+  private final String defaultBranch;
+  private final boolean wikiEnabled;
+
+  SmeagolRepositoryInformation(Repository repository, RepositoryInformation information) {
+    this.namespace = repository.getNamespace();
+    this.name = repository.getName();
+    this.id = repository.getId();
+    this.description = repository.getDescription();
+    this.type = repository.getType();
+    this.defaultBranch = information.getDefaultBranch();
+    this.wikiEnabled = information.isWikiEnabled();
   }
 }
-

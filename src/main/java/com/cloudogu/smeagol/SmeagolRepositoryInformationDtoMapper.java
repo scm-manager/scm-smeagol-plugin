@@ -24,17 +24,12 @@
 
 package com.cloudogu.smeagol;
 
-import com.google.inject.AbstractModule;
-import org.mapstruct.factory.Mappers;
-import sonia.scm.plugin.Extension;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-@Extension
-public class ConfigurationModule extends AbstractModule {
+@Mapper
+interface SmeagolRepositoryInformationDtoMapper {
 
-  @Override
-  protected void configure() {
-    bind(SmeagolConfigurationDtoMapper.class).to(Mappers.getMapper(SmeagolConfigurationDtoMapper.class).getClass());
-    bind(SmeagolRepositoryInformationDtoMapper.class).to(Mappers.getMapperClass(SmeagolRepositoryInformationDtoMapper.class));
-  }
+  @Mapping(target = "attributes", ignore = true)
+  SmeagolRepositoryInformationDto map(SmeagolRepositoryInformation information);
 }
-
