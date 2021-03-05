@@ -22,27 +22,40 @@
  * SOFTWARE.
  */
 
-plugins {
-  id 'org.scm-manager.smp' version '0.7.4'
-}
+package com.cloudogu.smeagol;
 
-dependencies {
-  // Though the smeagol plugin does not technically depend upon the
-  // rest legacy plugin, we add this dependency nonetheless because
-  // smeagol would not run without this plugin. With this dependency
-  // the rest legacy plugin will be installed automatically to avoid
-  // confusion.
-  plugin "sonia.scm.plugins:scm-rest-legacy-plugin:2.0.0"
-}
+import com.google.common.annotations.VisibleForTesting;
+import de.otto.edison.hal.Links;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.ObjectFactory;
+import sonia.scm.config.ConfigurationPermissions;
 
-repositories {
-  mavenLocal()
-}
+import javax.inject.Inject;
 
-scmPlugin {
-  scmVersion = "2.0.0"
-  displayName = "Smeagol Plugin"
-  description = "Adds specialized endpoints used by Smeagol."
-  author = "Cloudogu GmbH"
-  category = "Documentation"
+import static de.otto.edison.hal.Link.link;
+import static de.otto.edison.hal.Link.self;
+import static de.otto.edison.hal.Links.linkingTo;
+
+@Mapper
+abstract class SmeagolConfigurationDtoMapper {
+
+  @Inject
+  @VisibleForTesting
+  SmeagolLinkBuilder linkBuilder;
+
+  @Mapping(target = "attributes", ignore = true)
+  abstract SmeagolConfigurationDto map(SmeagolConfiguration.Config configuration);
+
+  abstract SmeagolConfiguration.Config map(SmeagolConfigurationDto configuration);
+
+  @ObjectFactory
+  SmeagolConfigurationDto createDto() {
+    Links.Builder links = linkingTo()
+      .single(self(this.linkBuilder.getConfigurationLink()));
+    if (ConfigurationPermissions.write("smeagol").isPermitted()) {
+      links.single(link("update", this.linkBuilder.getConfigurationLink()));
+    }
+    return new SmeagolConfigurationDto(links.build());
+  }
 }

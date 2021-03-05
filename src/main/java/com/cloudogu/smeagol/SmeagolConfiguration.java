@@ -22,27 +22,42 @@
  * SOFTWARE.
  */
 
-plugins {
-  id 'org.scm-manager.smp' version '0.7.4'
-}
+package com.cloudogu.smeagol;
 
-dependencies {
-  // Though the smeagol plugin does not technically depend upon the
-  // rest legacy plugin, we add this dependency nonetheless because
-  // smeagol would not run without this plugin. With this dependency
-  // the rest legacy plugin will be installed automatically to avoid
-  // confusion.
-  plugin "sonia.scm.plugins:scm-rest-legacy-plugin:2.0.0"
-}
+import lombok.Getter;
+import lombok.Setter;
+import sonia.scm.config.ConfigurationPermissions;
+import sonia.scm.store.ConfigurationStore;
+import sonia.scm.store.ConfigurationStoreFactory;
 
-repositories {
-  mavenLocal()
-}
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import javax.xml.bind.annotation.XmlRootElement;
 
-scmPlugin {
-  scmVersion = "2.0.0"
-  displayName = "Smeagol Plugin"
-  description = "Adds specialized endpoints used by Smeagol."
-  author = "Cloudogu GmbH"
-  category = "Documentation"
+@Singleton
+public class SmeagolConfiguration {
+
+  private final ConfigurationStore<Config> configStore;
+
+  @Inject
+  public SmeagolConfiguration(ConfigurationStoreFactory storeFactory) {
+    this.configStore = storeFactory.withType(Config.class).withName("smeagol").build();
+  }
+
+  public Config get() {
+    return configStore.getOptional().orElse(new Config());
+  }
+
+  public void set(Config config) {
+    ConfigurationPermissions.write("smeagol").check();
+    configStore.set(config);
+  }
+
+  @Getter
+  @Setter
+  @XmlRootElement(name = "smeagol")
+  public static class Config {
+    private boolean enabled;
+    private String smeagolUrl = "";
+  }
 }

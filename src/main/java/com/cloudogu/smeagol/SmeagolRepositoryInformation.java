@@ -22,27 +22,30 @@
  * SOFTWARE.
  */
 
-plugins {
-  id 'org.scm-manager.smp' version '0.7.4'
-}
+package com.cloudogu.smeagol;
 
-dependencies {
-  // Though the smeagol plugin does not technically depend upon the
-  // rest legacy plugin, we add this dependency nonetheless because
-  // smeagol would not run without this plugin. With this dependency
-  // the rest legacy plugin will be installed automatically to avoid
-  // confusion.
-  plugin "sonia.scm.plugins:scm-rest-legacy-plugin:2.0.0"
-}
+import lombok.Getter;
+import sonia.scm.repository.Repository;
 
-repositories {
-  mavenLocal()
-}
+@Getter
+@SuppressWarnings("java:S2160") // we have no definition for equals/hashCode
+class SmeagolRepositoryInformation {
 
-scmPlugin {
-  scmVersion = "2.0.0"
-  displayName = "Smeagol Plugin"
-  description = "Adds specialized endpoints used by Smeagol."
-  author = "Cloudogu GmbH"
-  category = "Documentation"
+  private final String namespace;
+  private final String name;
+  private final String id;
+  private final String type;
+  private final String description;
+  private final String defaultBranch;
+  private final boolean wikiEnabled;
+
+  SmeagolRepositoryInformation(Repository repository, RepositoryInformation information) {
+    this.namespace = repository.getNamespace();
+    this.name = repository.getName();
+    this.id = repository.getId();
+    this.description = repository.getDescription();
+    this.type = repository.getType();
+    this.defaultBranch = information.getDefaultBranch();
+    this.wikiEnabled = information.isWikiEnabled();
+  }
 }

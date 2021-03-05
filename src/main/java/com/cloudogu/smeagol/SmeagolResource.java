@@ -24,19 +24,72 @@
 
 package com.cloudogu.smeagol;
 
+import de.otto.edison.hal.Embedded;
+import de.otto.edison.hal.HalRepresentation;
 import sonia.scm.security.AllowAnonymousAccess;
 
+import javax.inject.Inject;
+import javax.validation.Valid;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import java.util.List;
+
+import static de.otto.edison.hal.Link.link;
+import static de.otto.edison.hal.Links.linkingTo;
+import static java.util.stream.Collectors.toList;
 
 @AllowAnonymousAccess
 @Path("v2/smeagol/")
 public class SmeagolResource {
 
+  private final SmeagolRepositoryStore store;
+  private final SmeagolLinkBuilder smeagolLinkBuilder;
+  private final SmeagolConfiguration configuration;
+  private final SmeagolConfigurationDtoMapper configurationMapper;
+  private final SmeagolRepositoryInformationDtoMapper informationMapper;
+
+  @Inject
+  SmeagolResource(SmeagolRepositoryStore store,
+                  SmeagolLinkBuilder smeagolLinkBuilder,
+                  SmeagolConfiguration configuration,
+                  SmeagolConfigurationDtoMapper configurationMapper,
+                  SmeagolRepositoryInformationDtoMapper informationMapper) {
+    this.store = store;
+    this.smeagolLinkBuilder = smeagolLinkBuilder;
+    this.configuration = configuration;
+    this.configurationMapper = configurationMapper;
+    this.informationMapper = informationMapper;
+  }
+
   @GET
-  @Path("resources")
-  public Response loadRepositories() {
-    return Response.ok("to be done").build();
+  @Path("repositories")
+  @Produces("application/json")
+  public HalRepresentation loadRepositories(@QueryParam("wikiEnabled") boolean smeagolOnly) {
+    List<SmeagolRepositoryInformation> repositories = store.getRepositories();
+    if (smeagolOnly) {
+      repositories = repositories.stream().filter(SmeagolRepositoryInformation::isWikiEnabled).collect(toList());
+    }
+    return new HalRepresentation(
+      linkingTo().single(link("self", smeagolLinkBuilder.getRepositoriesLink())).build(),
+      Embedded.embedded("repositories", repositories.stream().map(informationMapper::map).collect(toList()))
+    );
+  }
+
+  @GET
+  @Path("configuration")
+  @Produces("application/json")
+  public SmeagolConfigurationDto getConfiguration() {
+    return configurationMapper.map(configuration.get());
+  }
+
+  @PUT
+  @Path("configuration")
+  @Consumes("application/json")
+  public void setConfiguration(@Valid SmeagolConfigurationDto configurationDto) {
+    configuration.set(configurationMapper.map(configurationDto));
   }
 }

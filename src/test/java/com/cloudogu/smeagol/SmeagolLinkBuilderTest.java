@@ -22,27 +22,39 @@
  * SOFTWARE.
  */
 
-plugins {
-  id 'org.scm-manager.smp' version '0.7.4'
-}
+package com.cloudogu.smeagol;
 
-dependencies {
-  // Though the smeagol plugin does not technically depend upon the
-  // rest legacy plugin, we add this dependency nonetheless because
-  // smeagol would not run without this plugin. With this dependency
-  // the rest legacy plugin will be installed automatically to avoid
-  // confusion.
-  plugin "sonia.scm.plugins:scm-rest-legacy-plugin:2.0.0"
-}
+import org.junit.jupiter.api.Test;
+import sonia.scm.api.v2.resources.ScmPathInfoStore;
 
-repositories {
-  mavenLocal()
-}
+import java.net.URI;
 
-scmPlugin {
-  scmVersion = "2.0.0"
-  displayName = "Smeagol Plugin"
-  description = "Adds specialized endpoints used by Smeagol."
-  author = "Cloudogu GmbH"
-  category = "Documentation"
+import static com.google.inject.util.Providers.of;
+import static org.assertj.core.api.Assertions.assertThat;
+
+class SmeagolLinkBuilderTest {
+
+  @Test
+  void shouldGenerateRepositoriesLink() {
+    ScmPathInfoStore pathInfoStore = new ScmPathInfoStore();
+    pathInfoStore.set(() -> URI.create("/"));
+
+    SmeagolLinkBuilder smeagolLinkBuilder = new SmeagolLinkBuilder(of(pathInfoStore));
+
+    String link = smeagolLinkBuilder.getRepositoriesLink();
+
+    assertThat(link).isEqualTo("/v2/smeagol/repositories");
+  }
+
+  @Test
+  void shouldGenerateConfigurationLink() {
+    ScmPathInfoStore pathInfoStore = new ScmPathInfoStore();
+    pathInfoStore.set(() -> URI.create("/"));
+
+    SmeagolLinkBuilder smeagolLinkBuilder = new SmeagolLinkBuilder(of(pathInfoStore));
+
+    String link = smeagolLinkBuilder.getConfigurationLink();
+
+    assertThat(link).isEqualTo("/v2/smeagol/configuration");
+  }
 }

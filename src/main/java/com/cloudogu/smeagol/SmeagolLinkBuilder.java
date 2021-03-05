@@ -22,27 +22,40 @@
  * SOFTWARE.
  */
 
-plugins {
-  id 'org.scm-manager.smp' version '0.7.4'
-}
+package com.cloudogu.smeagol;
 
-dependencies {
-  // Though the smeagol plugin does not technically depend upon the
-  // rest legacy plugin, we add this dependency nonetheless because
-  // smeagol would not run without this plugin. With this dependency
-  // the rest legacy plugin will be installed automatically to avoid
-  // confusion.
-  plugin "sonia.scm.plugins:scm-rest-legacy-plugin:2.0.0"
-}
+import sonia.scm.api.v2.resources.LinkBuilder;
+import sonia.scm.api.v2.resources.ScmPathInfoStore;
+import sonia.scm.util.HttpUtil;
 
-repositories {
-  mavenLocal()
-}
+import javax.inject.Inject;
+import javax.inject.Provider;
 
-scmPlugin {
-  scmVersion = "2.0.0"
-  displayName = "Smeagol Plugin"
-  description = "Adds specialized endpoints used by Smeagol."
-  author = "Cloudogu GmbH"
-  category = "Documentation"
+class SmeagolLinkBuilder {
+
+  private final Provider<ScmPathInfoStore> scmPathInfoStore;
+
+  @Inject
+  SmeagolLinkBuilder(Provider<ScmPathInfoStore> scmPathInfoStore) {
+    this.scmPathInfoStore = scmPathInfoStore;
+  }
+
+  String getRepositoriesLink() {
+    return new LinkBuilder(scmPathInfoStore.get().get(), SmeagolResource.class)
+      .method("loadRepositories")
+      .parameters()
+      .href();
+  }
+
+  String getConfigurationLink() {
+    return new LinkBuilder(scmPathInfoStore.get().get(), SmeagolResource.class)
+      .method("getConfiguration")
+      .parameters()
+      .href();
+  }
+
+  String getUILink(SmeagolRepositoryInformation information) {
+    String rootUrl = scmPathInfoStore.get().get().getRootUri().toString();
+    return HttpUtil.concatenate(rootUrl, "repo", information.getNamespace(), information.getName());
+  }
 }

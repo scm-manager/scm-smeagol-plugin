@@ -22,27 +22,27 @@
  * SOFTWARE.
  */
 
-plugins {
-  id 'org.scm-manager.smp' version '0.7.4'
-}
+package com.cloudogu.smeagol;
 
-dependencies {
-  // Though the smeagol plugin does not technically depend upon the
-  // rest legacy plugin, we add this dependency nonetheless because
-  // smeagol would not run without this plugin. With this dependency
-  // the rest legacy plugin will be installed automatically to avoid
-  // confusion.
-  plugin "sonia.scm.plugins:scm-rest-legacy-plugin:2.0.0"
-}
+import de.otto.edison.hal.HalRepresentation;
+import de.otto.edison.hal.Links;
+import lombok.Getter;
+import lombok.Setter;
 
-repositories {
-  mavenLocal()
-}
+@Getter
+@Setter
+@SuppressWarnings("java:S2160") // we have no definition for equals/hashCode
+public class SmeagolRepositoryInformationDto extends HalRepresentation {
 
-scmPlugin {
-  scmVersion = "2.0.0"
-  displayName = "Smeagol Plugin"
-  description = "Adds specialized endpoints used by Smeagol."
-  author = "Cloudogu GmbH"
-  category = "Documentation"
+  private String namespace;
+  private String name;
+  private String id;
+  private String type;
+  private String description;
+  private String defaultBranch;
+  private boolean wikiEnabled;
+
+  public SmeagolRepositoryInformationDto(Links links) {
+    super(links);
+  }
 }

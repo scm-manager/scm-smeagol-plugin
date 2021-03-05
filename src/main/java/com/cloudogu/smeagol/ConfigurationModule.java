@@ -22,27 +22,19 @@
  * SOFTWARE.
  */
 
-plugins {
-  id 'org.scm-manager.smp' version '0.7.4'
+package com.cloudogu.smeagol;
+
+import com.google.inject.AbstractModule;
+import org.mapstruct.factory.Mappers;
+import sonia.scm.plugin.Extension;
+
+@Extension
+public class ConfigurationModule extends AbstractModule {
+
+  @Override
+  protected void configure() {
+    bind(SmeagolConfigurationDtoMapper.class).to(Mappers.getMapper(SmeagolConfigurationDtoMapper.class).getClass());
+    bind(SmeagolRepositoryInformationDtoMapper.class).to(Mappers.getMapperClass(SmeagolRepositoryInformationDtoMapper.class));
+  }
 }
 
-dependencies {
-  // Though the smeagol plugin does not technically depend upon the
-  // rest legacy plugin, we add this dependency nonetheless because
-  // smeagol would not run without this plugin. With this dependency
-  // the rest legacy plugin will be installed automatically to avoid
-  // confusion.
-  plugin "sonia.scm.plugins:scm-rest-legacy-plugin:2.0.0"
-}
-
-repositories {
-  mavenLocal()
-}
-
-scmPlugin {
-  scmVersion = "2.0.0"
-  displayName = "Smeagol Plugin"
-  description = "Adds specialized endpoints used by Smeagol."
-  author = "Cloudogu GmbH"
-  category = "Documentation"
-}

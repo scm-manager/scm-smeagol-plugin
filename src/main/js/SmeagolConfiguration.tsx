@@ -21,28 +21,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+import React, { FC } from "react";
+import { useTranslation } from "react-i18next";
+import { Title, Configuration } from "@scm-manager/ui-components";
+import SmeagolConfigurationForm from "./SmeagolConfigurationForm";
 
-plugins {
-  id 'org.scm-manager.smp' version '0.7.4'
-}
+type Props = {
+  link: string;
+};
 
-dependencies {
-  // Though the smeagol plugin does not technically depend upon the
-  // rest legacy plugin, we add this dependency nonetheless because
-  // smeagol would not run without this plugin. With this dependency
-  // the rest legacy plugin will be installed automatically to avoid
-  // confusion.
-  plugin "sonia.scm.plugins:scm-rest-legacy-plugin:2.0.0"
-}
+const SmeagolConfiguration: FC<Props> = ({ link }) => {
+  const [t] = useTranslation("plugins");
+  return (
+    <>
+      <Title title={t("scm-smeagol-plugin.form.header")} />
+      <Configuration link={link} render={props => <SmeagolConfigurationForm {...props} />} />
+    </>
+  );
+};
 
-repositories {
-  mavenLocal()
-}
-
-scmPlugin {
-  scmVersion = "2.0.0"
-  displayName = "Smeagol Plugin"
-  description = "Adds specialized endpoints used by Smeagol."
-  author = "Cloudogu GmbH"
-  category = "Documentation"
-}
+export default SmeagolConfiguration;
