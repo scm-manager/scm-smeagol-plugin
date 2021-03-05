@@ -38,7 +38,7 @@ import java.util.List;
 
 class RepositoryInformationComputer {
 
-  public static final String SMEAGOL_MARKER_FILE = ".smeagol.yml";
+  public static final String SMEAGOL_MARKER_FILE = System.getProperty("com.cloudogu.scm.smeagol.markerFile", ".smeagol.yml");
 
   private final RepositoryServiceFactory serviceFactory;
 
@@ -76,7 +76,7 @@ class RepositoryInformationComputer {
     } catch (NotFoundException e) {
       return false;
     } catch (IOException e) {
-      throw new InternalRepositoryException(service.getRepository(), "Could not browse for .smeagol.yml", e);
+      throw new InternalRepositoryException(service.getRepository(), "Could not browse for " + SMEAGOL_MARKER_FILE, e);
     }
   }
 

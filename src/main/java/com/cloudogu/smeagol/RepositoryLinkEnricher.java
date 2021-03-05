@@ -30,6 +30,7 @@ import sonia.scm.api.v2.resources.HalEnricher;
 import sonia.scm.api.v2.resources.HalEnricherContext;
 import sonia.scm.plugin.Extension;
 import sonia.scm.repository.Repository;
+import sonia.scm.util.HttpUtil;
 
 import javax.inject.Inject;
 
@@ -57,10 +58,6 @@ public class RepositoryLinkEnricher implements HalEnricher {
   }
 
   private String createSmeagolUrl(Repository repository) {
-    String baseUrl = configuration.get().getSmeagolUrl();
-    if (!baseUrl.endsWith("/")) {
-      baseUrl = baseUrl + "/";
-    }
-    return baseUrl + repository.getId();
+    return HttpUtil.concatenate(configuration.get().getSmeagolUrl(), repository.getId());
   }
 }

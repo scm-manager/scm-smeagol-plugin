@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static com.cloudogu.smeagol.SmeagolRepositoryFilter.isPotentiallySmeagolRelevant;
@@ -131,9 +132,10 @@ class SmeagolRepositoryStore implements Initable {
   }
 
   private void init() {
+    ExecutorService executorService = Executors.newSingleThreadExecutor();
     try {
       LOG.info("Starting initialization of smeagol repository information");
-      Executors.newSingleThreadExecutor()
+      executorService
         .submit(informationInitializer)
         .get()
         .forEach(repositoryInformation::put);
@@ -146,6 +148,7 @@ class SmeagolRepositoryStore implements Initable {
     } finally {
       LOG.info("Finished initialization of smeagol repository information");
       initializeLatch.countDown();
+      executorService.shutdown();
     }
   }
 
