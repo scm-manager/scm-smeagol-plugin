@@ -37,6 +37,7 @@ import lombok.Setter;
 class SmeagolConfigurationDto extends HalRepresentation {
 
   private boolean enabled;
+  private boolean navLinkEnabled;
   private String smeagolUrl;
 
   public SmeagolConfigurationDto(Links links) {

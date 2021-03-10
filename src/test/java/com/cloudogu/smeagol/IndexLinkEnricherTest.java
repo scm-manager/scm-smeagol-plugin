@@ -56,6 +56,8 @@ class IndexLinkEnricherTest {
   @Mock
   private Subject subject;
   @Mock
+  private SmeagolConfiguration configuration;
+  @Mock
   private HalEnricherContext context;
   @Mock
   private HalAppender appender;
@@ -77,6 +79,7 @@ class IndexLinkEnricherTest {
     lenient().when(appender.linkArrayBuilder("smeagol")).thenReturn(linkArrayBuilder);
     lenient().when(smeagolLinkBuilder.getRepositoriesLink()).thenReturn("/smeagol/repositories");
     lenient().when(smeagolLinkBuilder.getConfigurationLink()).thenReturn("/smeagol/configuration");
+    lenient().when(configuration.get()).thenReturn(new SmeagolConfiguration.Config());
   }
 
   @Test
@@ -84,6 +87,7 @@ class IndexLinkEnricherTest {
     enricher.enrich(context, appender);
 
     verify(linkArrayBuilder).append("repositories", "/smeagol/repositories");
+    verify(linkArrayBuilder, never()).append(eq("smeagolRoot"), anyString());
     verify(linkArrayBuilder).build();
   }
 
@@ -103,5 +107,18 @@ class IndexLinkEnricherTest {
     enricher.enrich(context, appender);
 
     verify(appender).appendLink("smeagolConfig", "/smeagol/configuration");
+  }
+
+  @Test
+  void shouldAppendRootLink() {
+    SmeagolConfiguration.Config config = new SmeagolConfiguration.Config();
+    config.setNavLinkEnabled(true);
+    String expectedUrl = "http://localhost:8080/smeagol";
+    config.setSmeagolUrl(expectedUrl);
+    
+    when(configuration.get()).thenReturn(config);
+    enricher.enrich(context, appender);
+
+    verify(linkArrayBuilder).append("smeagolRoot", expectedUrl);
   }
 }

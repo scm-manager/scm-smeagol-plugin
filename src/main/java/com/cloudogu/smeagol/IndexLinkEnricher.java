@@ -38,17 +38,23 @@ import javax.inject.Inject;
 class IndexLinkEnricher implements HalEnricher {
 
   private final SmeagolLinkBuilder smeagolLinkBuilder;
+  private final SmeagolConfiguration configuration;
 
   @Inject
-  public IndexLinkEnricher(SmeagolLinkBuilder smeagolLinkBuilder) {
+  public IndexLinkEnricher(SmeagolLinkBuilder smeagolLinkBuilder,  SmeagolConfiguration configuration) {
     this.smeagolLinkBuilder = smeagolLinkBuilder;
+    this.configuration = configuration;
   }
 
   @Override
   public void enrich(HalEnricherContext context, HalAppender appender) {
-    appender.linkArrayBuilder("smeagol")
-      .append("repositories", smeagolLinkBuilder.getRepositoriesLink())
-      .build();
+    HalAppender.LinkArrayBuilder smeagolArray = appender.linkArrayBuilder("smeagol");
+    smeagolArray
+      .append("repositories", smeagolLinkBuilder.getRepositoriesLink());
+    if (configuration.get().isNavLinkEnabled()) {
+      smeagolArray.append("smeagolRoot", configuration.get().getSmeagolUrl());
+    }
+    smeagolArray.build();
     if (SecurityUtils.getSubject().isAuthenticated()) {
       appender.appendLink("smeagolConfig", smeagolLinkBuilder.getConfigurationLink());
     }

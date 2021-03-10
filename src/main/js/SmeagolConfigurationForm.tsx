@@ -29,6 +29,7 @@ import { InputField, Checkbox } from "@scm-manager/ui-components";
 type GlobalConfiguration = {
   smeagolUrl: string;
   enabled: boolean;
+  navLinkEnabled: boolean;
   _links: Links;
 };
 
@@ -68,6 +69,13 @@ const SmeagolConfigurationForm: FC<Props> = ({ initialConfiguration, onConfigura
         label={t("scm-smeagol-plugin.form.enabled")}
         helpText={t("scm-smeagol-plugin.form.enabledHelp")}
         checked={changedConfig.enabled}
+        onChange={valueChangeHandler}
+      />
+      <Checkbox
+        name="navLinkEnabled"
+        label={t("scm-smeagol-plugin.form.navLinkEnabled")}
+        helpText={t("scm-smeagol-plugin.form.navLinkEnabledHelp")}
+        checked={changedConfig.navLinkEnabled}
         onChange={valueChangeHandler}
       />
       <InputField

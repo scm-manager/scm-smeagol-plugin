@@ -5,6 +5,8 @@
       "header": "Global Smeagol Configuration",
       "enabled": "Enabled",
       "enabledHelp": "If \"Enabled\" SCM-Manager creates a link in the navigation for repositories with a Smeagol wiki that leads to this wiki.",
+      "navLinkEnabled": "Primary Navigation Link Enabled",
+      "navLinkEnabledHelp": "Wenn \"Enabled\" SCM-Manager creates a link in the primary navigation bar that leads to the home page of Smeagol. Changes can only be seen after a page reload.",
       "url": "Smeagol Server URL",
       "urlHelp": "Url of Smeagol server."
     },
