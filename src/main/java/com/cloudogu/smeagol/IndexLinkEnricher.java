@@ -51,7 +51,7 @@ class IndexLinkEnricher implements HalEnricher {
     HalAppender.LinkArrayBuilder smeagolArray = appender.linkArrayBuilder("smeagol");
     smeagolArray
       .append("repositories", smeagolLinkBuilder.getRepositoriesLink());
-    if (configuration.get().isNavLinkEnabled()) {
+    if (configuration.get().isEnabled() && configuration.get().isNavLinkEnabled()) {
       smeagolArray.append("smeagolRoot", configuration.get().getSmeagolUrl());
     }
     smeagolArray.build();
