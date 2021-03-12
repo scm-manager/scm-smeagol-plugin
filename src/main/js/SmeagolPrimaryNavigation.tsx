@@ -21,26 +21,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import React from "react";
-import { ConfigurationBinder as cfgBinder } from "@scm-manager/ui-components";
-import { binder } from "@scm-manager/ui-extensions";
-import SmeagolConfiguration from "./SmeagolConfiguration";
-import SmeagolNavLink from "./SmeagolNavLink";
-import SmeagolPrimaryNavigation from "./SmeagolPrimaryNavigation";
+import React, {FC} from "react";
+import {useTranslation, withTranslation} from "react-i18next";
 
-cfgBinder.bindGlobal("/smeagol", "scm-smeagol-plugin.nav-link", "smeagolConfig", SmeagolConfiguration);
-
-const smeagolWikiPredicate = (props: object) => {
-  return props.repository && props.repository._links.smeagolWiki;
+type Props = {
+  links: object;
 };
 
-const SmeagolNavLinkFactory = ({ repository }) => {
-  return <SmeagolNavLink repository={repository} />;
+const SmeagolPrimaryNavigation: FC<Props> = ({ links }) => {
+    const [t] = useTranslation("plugins");
+
+  const smeagolLink = links.smeagol.find( x => x.name === 'smeagolRoot').href;
+  
+  return (
+    <a href={smeagolLink}>{t("scm-smeagol-plugin.nav-link")}</a>
+  );
 };
 
-const smeagolPrimaryNavigationPredicate = (props: object) => {
-  return props.links.smeagol.find( x => x.name === 'smeagolRoot');
-};
-
-binder.bind("repository.navigation", SmeagolNavLinkFactory, smeagolWikiPredicate);
-binder.bind("primary-navigation", SmeagolPrimaryNavigation, smeagolPrimaryNavigationPredicate);
+export default withTranslation("plugins")(SmeagolPrimaryNavigation);

@@ -58,6 +58,7 @@ public class SmeagolConfiguration {
   @XmlRootElement(name = "smeagol")
   public static class Config {
     private boolean enabled;
+    private boolean navLinkEnabled;
     private String smeagolUrl = "";
   }
 }
