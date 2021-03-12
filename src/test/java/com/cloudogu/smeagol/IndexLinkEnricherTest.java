@@ -113,9 +113,10 @@ class IndexLinkEnricherTest {
   void shouldAppendRootLink() {
     SmeagolConfiguration.Config config = new SmeagolConfiguration.Config();
     config.setNavLinkEnabled(true);
+    config.setEnabled(true);
     String expectedUrl = "http://localhost:8080/smeagol";
     config.setSmeagolUrl(expectedUrl);
-    
+
     when(configuration.get()).thenReturn(config);
     enricher.enrich(context, appender);
 
