@@ -49,7 +49,7 @@ class SmeagolLinkBuilder {
 
   String getConfigurationLink() {
     return new LinkBuilder(scmPathInfoStore.get().get(), SmeagolResource.class)
-      .method("getConfiguration")
+      .method("getSmeagolConfiguration")
       .parameters()
       .href();
   }

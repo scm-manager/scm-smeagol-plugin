@@ -82,14 +82,14 @@ public class SmeagolResource {
   @GET
   @Path("configuration")
   @Produces("application/json")
-  public SmeagolConfigurationDto getConfiguration() {
+  public SmeagolConfigurationDto getSmeagolConfiguration() {
     return configurationMapper.map(configuration.get());
   }
 
   @PUT
   @Path("configuration")
   @Consumes("application/json")
-  public void setConfiguration(@Valid SmeagolConfigurationDto configurationDto) {
+  public void setSmeagolConfiguration(@Valid SmeagolConfigurationDto configurationDto) {
     configuration.set(configurationMapper.map(configurationDto));
   }
 }
