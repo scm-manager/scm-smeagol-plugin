@@ -77,6 +77,7 @@ const SmeagolConfigurationForm: FC<Props> = ({ initialConfiguration, onConfigura
         helpText={t("scm-smeagol-plugin.form.navLinkEnabledHelp")}
         checked={changedConfig.navLinkEnabled}
         onChange={valueChangeHandler}
+        disabled={!changedConfig.enabled}
       />
       <InputField
         name="smeagolUrl"
