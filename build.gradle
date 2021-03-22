@@ -41,8 +41,8 @@ repositories {
 
 scmPlugin {
   scmVersion = "2.0.0"
-  displayName = "Smeagol Plugin"
-  description = "Adds specialized endpoints used by Smeagol."
+  displayName = "Smeagol Integration"
+  description = "Adds specialized endpoints used by Smeagol"
   author = "Cloudogu GmbH"
   category = "Documentation"
 }
