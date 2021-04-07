@@ -57,7 +57,7 @@ class RepositoryLinkEnricherTest {
 
   @Test
   void shouldAppendSmeagolLink() {
-    Repository repository = RepositoryTestData.createHeartOfGold();
+    Repository repository = RepositoryTestData.createHeartOfGold("git");
     repository.setId("id-1");
     when(context.oneRequireByType(Repository.class)).thenReturn(repository);
     when(configuration.get()).thenReturn(createConfig(true));
@@ -79,10 +79,21 @@ class RepositoryLinkEnricherTest {
 
   @Test
   void shouldNotAppendSmeagolLinkWhenNotSmeagolRepository() {
-    Repository repository = RepositoryTestData.createHeartOfGold();
+    Repository repository = RepositoryTestData.createHeartOfGold("git");
     when(context.oneRequireByType(Repository.class)).thenReturn(repository);
     when(configuration.get()).thenReturn(createConfig(true));
     when(store.getFor(repository)).thenReturn(new SmeagolRepositoryInformation(repository, new RepositoryInformation("develop", false)));
+
+    enricher.enrich(context, appender);
+
+    verify(appender, never()).appendLink(anyString(), anyString());
+  }
+
+  @Test
+  void shouldNotAppendSmeagolLinkWhenNotSmeagolRelevant() {
+    Repository repository = RepositoryTestData.createHeartOfGold("hg");
+    when(context.oneRequireByType(Repository.class)).thenReturn(repository);
+    when(configuration.get()).thenReturn(createConfig(true));
 
     enricher.enrich(context, appender);
 
