@@ -40,9 +40,9 @@ import sonia.scm.web.security.AdministrationContext;
 
 import javax.inject.Inject;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -64,7 +64,8 @@ class SmeagolRepositoryStore implements Initable {
   private final RepositoryManager repositoryManager;
   private final RepositoryInformationComputer computer;
 
-  private final Map<String, RepositoryInformation> repositoryInformation = new HashMap<>();
+  private final Map<String, RepositoryInformation> repositoryInformation = new ConcurrentHashMap<>();
+
 
   @Inject
   SmeagolRepositoryStore(AdministrationContext administrationContext, RepositoryInformationInitializer informationInitializer, RepositoryManager repositoryManager, RepositoryInformationComputer computer) {
@@ -83,8 +84,7 @@ class SmeagolRepositoryStore implements Initable {
   public void detectCodeChanges(PostReceiveRepositoryHookEvent event) {
     Repository repository = event.getRepository();
     if (isPotentiallySmeagolRelevant(repository)) {
-      RepositoryInformation information = computer.compute(repository);
-      repositoryInformation.put(repository.getId(), information);
+      recompute(repository);
     }
   }
 
@@ -96,11 +96,15 @@ class SmeagolRepositoryStore implements Initable {
         break;
       case CREATE:
         if (isPotentiallySmeagolRelevant(event.getItem())) {
-          repositoryInformation.put(event.getItem().getId(), computer.compute(event.getItem()));
+          recompute(event.getItem());
         }
         break;
       default: // nothing to do
     }
+  }
+
+  private void recompute(Repository repository) {
+    repositoryInformation.compute(repository.getId(), (id, oldInformation) -> computer.compute(repository));
   }
 
   /**
