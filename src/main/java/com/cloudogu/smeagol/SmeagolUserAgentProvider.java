@@ -21,28 +21,41 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package com.cloudogu.smeagol;
 
-plugins {
-  id 'org.scm-manager.smp' version '0.7.4'
-}
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Strings;
+import sonia.scm.plugin.Extension;
+import sonia.scm.web.UserAgent;
+import sonia.scm.web.UserAgentProvider;
 
-dependencies {
-  // Though the smeagol plugin does not technically depend upon the
-  // rest legacy plugin, we add this dependency nonetheless because
-  // smeagol would not run without this plugin. With this dependency
-  // the rest legacy plugin will be installed automatically to avoid
-  // confusion.
-  plugin "sonia.scm.plugins:scm-rest-legacy-plugin:2.0.0"
-}
+import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 
-repositories {
-  mavenLocal()
-}
+@Extension
+public class SmeagolUserAgentProvider implements UserAgentProvider {
 
-scmPlugin {
-  scmVersion = "2.9.0"
-  displayName = "Smeagol Integration"
-  description = "Adds specialized endpoints used by Smeagol"
-  author = "Cloudogu GmbH"
-  category = "Documentation"
+  private static final String SMEAGOL_PREFIX = "smeagol/";
+
+  @VisibleForTesting
+  static final UserAgent SMEAGOL = UserAgent
+    .scmClient("Smeagol")
+    .basicAuthenticationCharset(StandardCharsets.UTF_8)
+    .build();
+
+
+  @Override
+  public UserAgent parseUserAgent(String userAgentString) {
+    String lowerUserAgent = toLower(userAgentString);
+
+    if (lowerUserAgent.startsWith(SMEAGOL_PREFIX)) {
+      return SMEAGOL;
+    }
+    return null;
+  }
+
+  private String toLower(String value) {
+    return Strings.nullToEmpty(value).toLowerCase(Locale.ENGLISH);
+  }
+
 }
