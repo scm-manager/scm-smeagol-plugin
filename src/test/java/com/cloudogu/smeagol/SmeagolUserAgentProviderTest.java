@@ -21,29 +21,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package com.cloudogu.smeagol;
 
-plugins {
-  id 'org.scm-manager.smp' version '0.7.4'
-}
+import org.junit.jupiter.api.Test;
+import sonia.scm.web.UserAgent;
 
-dependencies {
-  // Though the smeagol plugin does not technically depend upon the
-  // rest legacy plugin, we add this dependency nonetheless because
-  // smeagol would not run without this plugin. With this dependency
-  // the rest legacy plugin will be installed automatically to avoid
-  // confusion.
-  plugin "sonia.scm.plugins:scm-rest-legacy-plugin:2.0.0"
-}
+import java.nio.charset.StandardCharsets;
 
-repositories {
-  mavenLocal()
-}
+import static org.assertj.core.api.Assertions.assertThat;
 
-scmPlugin {
-  scmVersion = "2.9.0"
-  displayName = "Smeagol Integration"
-  description = "Adds specialized endpoints used by Smeagol"
-  author = "Cloudogu GmbH"
-  category = "Documentation"
-  avatarUrl = '/images/smeagol-logo.png'
+class SmeagolUserAgentProviderTest {
+
+  private final SmeagolUserAgentProvider userAgentProvider = new SmeagolUserAgentProvider();
+
+  @Test
+  void shouldReturnNullIfNotMatching() {
+    UserAgent userAgent = userAgentProvider.parseUserAgent("someUserAgentButNotSmeagol");
+
+    assertThat(userAgent).isNull();
+  }
+
+  @Test
+  void shouldReturnSmeagolUserAgent() {
+    UserAgent userAgent = userAgentProvider.parseUserAgent("smeagol/1.2.5");
+
+    assertThat(userAgent).isEqualTo(SmeagolUserAgentProvider.SMEAGOL);
+
+    assertThat(userAgent.isScmClient()).isTrue();
+    assertThat(userAgent.getBasicAuthenticationCharset()).isEqualTo(StandardCharsets.UTF_8);
+    assertThat(userAgent.getName()).isEqualTo("Smeagol");
+    assertThat(userAgent.isBrowser()).isFalse();
+  }
 }
