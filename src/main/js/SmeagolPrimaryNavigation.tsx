@@ -21,21 +21,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import React, {FC} from "react";
-import {useTranslation, withTranslation} from "react-i18next";
+
+import React, { FC } from "react";
+import { useTranslation } from "react-i18next";
+import { Link, Links } from "@scm-manager/ui-types";
 
 type Props = {
-  links: object;
+  links: Links;
 };
 
 const SmeagolPrimaryNavigation: FC<Props> = ({ links }) => {
-    const [t] = useTranslation("plugins");
+  const [t] = useTranslation("plugins");
 
-  const smeagolLink = links.smeagol.find( x => x.name === 'smeagolRoot').href;
-  
+  const smeagolLinks = links.smeagol as Link[] | undefined;
+  const smeagolLink = smeagolLinks?.find(link => link.name === "smeagolRoot");
+  if (!smeagolLink) {
+    return null;
+  }
+
   return (
-    <a href={smeagolLink}>{t("scm-smeagol-plugin.nav-link")}</a>
+    <a className="navbar-item" href={smeagolLink.href}>
+      {t("scm-smeagol-plugin.nav-link")}
+    </a>
   );
 };
 
-export default withTranslation("plugins")(SmeagolPrimaryNavigation);
+export default SmeagolPrimaryNavigation;
