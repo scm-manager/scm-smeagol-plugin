@@ -24,6 +24,7 @@
 
 package com.cloudogu.smeagol.search;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import lombok.Data;
@@ -35,7 +36,7 @@ import java.io.IOException;
 import java.util.Optional;
 
 import static java.util.Optional.empty;
-import static java.util.Optional.of;
+import static java.util.Optional.ofNullable;
 
 public class SmeagolConfigurationResolver {
 
@@ -52,7 +53,7 @@ public class SmeagolConfigurationResolver {
       String smeagolConfig = service.getCatCommand().getContent(".smeagol.yml");
       ObjectMapper om = new ObjectMapper(new YAMLFactory());
       Smeagol smeagol = om.readValue(smeagolConfig, Smeagol.class);
-      return of(smeagol.getDirectory());
+      return ofNullable(smeagol.getDirectory());
     } catch (IOException e) {
       LOG.warn("could not read smeagol configuration for repository {}", service.getRepository());
       return empty();
@@ -60,6 +61,7 @@ public class SmeagolConfigurationResolver {
   }
 
   @Data
+  @JsonIgnoreProperties(ignoreUnknown = true)
   private static class Smeagol {
     String directory;
   }
