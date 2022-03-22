@@ -22,28 +22,36 @@
  * SOFTWARE.
  */
 
-plugins {
-  id 'org.scm-manager.smp' version '0.10.1'
-}
+package com.cloudogu.smeagol.search;
 
-dependencies {
-  // Though the smeagol plugin does not technically depend upon the
-  // rest legacy plugin, we add this dependency nonetheless because
-  // smeagol would not run without this plugin. With this dependency
-  // the rest legacy plugin will be installed automatically to avoid
-  // confusion.
-  plugin "sonia.scm.plugins:scm-rest-legacy-plugin:2.0.0"
-}
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import sonia.scm.repository.api.RepositoryService;
 
-repositories {
-  mavenLocal()
-}
+import java.io.IOException;
+import java.util.Optional;
 
-scmPlugin {
-  scmVersion = "2.23.0"
-  displayName = "Smeagol Integration"
-  description = "Adds specialized endpoints used by Smeagol"
-  author = "Cloudogu GmbH"
-  category = "Documentation"
-  avatarUrl = '/images/smeagol-logo.png'
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
+
+public class SmeagolConfigurationResolver {
+
+  private static final Logger LOG = LoggerFactory.getLogger(SmeagolConfigurationResolver.class);
+
+  private final RepositoryService service;
+
+  public SmeagolConfigurationResolver(RepositoryService service) {
+    this.service = service;
+  }
+
+  Optional<String> getSmeagolPath() {
+    try {
+      String smeagolConfig = service.getCatCommand()
+        .getContent(".smeagol.yml");
+      return of("docs"); // TODO parse path from smeagol file
+    } catch (IOException e) {
+      LOG.warn("could not read smeagol configuration for repository {}", service.getRepository());
+      return empty();
+    }
+  }
 }

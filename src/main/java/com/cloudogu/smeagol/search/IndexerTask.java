@@ -22,28 +22,38 @@
  * SOFTWARE.
  */
 
-plugins {
-  id 'org.scm-manager.smp' version '0.10.1'
-}
+package com.cloudogu.smeagol.search;
 
-dependencies {
-  // Though the smeagol plugin does not technically depend upon the
-  // rest legacy plugin, we add this dependency nonetheless because
-  // smeagol would not run without this plugin. With this dependency
-  // the rest legacy plugin will be installed automatically to avoid
-  // confusion.
-  plugin "sonia.scm.plugins:scm-rest-legacy-plugin:2.0.0"
-}
+import com.google.common.annotations.VisibleForTesting;
+import sonia.scm.repository.Repository;
+import sonia.scm.search.Index;
+import sonia.scm.search.SerializableIndexTask;
 
-repositories {
-  mavenLocal()
-}
+import javax.inject.Inject;
 
-scmPlugin {
-  scmVersion = "2.23.0"
-  displayName = "Smeagol Integration"
-  description = "Adds specialized endpoints used by Smeagol"
-  author = "Cloudogu GmbH"
-  category = "Documentation"
-  avatarUrl = '/images/smeagol-logo.png'
+@SuppressWarnings("UnstableApiUsage")
+public class IndexerTask implements SerializableIndexTask<SmeagolDocument> {
+
+  private final Repository repository;
+
+  private IndexSyncer syncer;
+
+  public IndexerTask(Repository repository) {
+    this.repository = repository;
+  }
+
+  @Inject
+  public void setSyncer(IndexSyncer syncer) {
+    this.syncer = syncer;
+  }
+
+  @VisibleForTesting
+  Repository getRepository() {
+    return repository;
+  }
+
+  @Override
+  public void update(Index<SmeagolDocument> index) {
+    syncer.ensureIndexIsUpToDate(index, repository);
+  }
 }

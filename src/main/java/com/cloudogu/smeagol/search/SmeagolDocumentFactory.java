@@ -21,29 +21,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package com.cloudogu.smeagol.search;
 
-plugins {
-  id 'org.scm-manager.smp' version '0.10.1'
-}
+import com.google.common.io.ByteStreams;
+import sonia.scm.repository.api.RepositoryService;
 
-dependencies {
-  // Though the smeagol plugin does not technically depend upon the
-  // rest legacy plugin, we add this dependency nonetheless because
-  // smeagol would not run without this plugin. With this dependency
-  // the rest legacy plugin will be installed automatically to avoid
-  // confusion.
-  plugin "sonia.scm.plugins:scm-rest-legacy-plugin:2.0.0"
-}
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
-repositories {
-  mavenLocal()
-}
+public class SmeagolDocumentFactory {
 
-scmPlugin {
-  scmVersion = "2.23.0"
-  displayName = "Smeagol Integration"
-  description = "Adds specialized endpoints used by Smeagol"
-  author = "Cloudogu GmbH"
-  category = "Documentation"
-  avatarUrl = '/images/smeagol-logo.png'
+  public SmeagolDocument create(RepositoryService repositoryService, String revision, String path) throws IOException {
+    try (InputStream content = repositoryService.getCatCommand().setRevision(revision).getStream(path)) {
+      ByteArrayOutputStream output = new ByteArrayOutputStream();
+      ByteStreams.copy(content, output);
+      return new SmeagolDocument(revision, path, output.toString());
+    }
+  }
 }
