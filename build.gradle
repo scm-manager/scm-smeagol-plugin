@@ -33,6 +33,7 @@ dependencies {
   // the rest legacy plugin will be installed automatically to avoid
   // confusion.
   plugin "sonia.scm.plugins:scm-rest-legacy-plugin:2.0.0"
+  implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.2"
 }
 
 repositories {
