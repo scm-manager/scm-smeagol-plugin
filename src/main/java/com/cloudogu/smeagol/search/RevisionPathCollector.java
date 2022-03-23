@@ -34,7 +34,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Optional;
+import java.util.Locale;
 import java.util.Set;
 
 public class RevisionPathCollector implements PathCollector {
@@ -43,9 +43,11 @@ public class RevisionPathCollector implements PathCollector {
 
   private final Set<String> pathToStore = new HashSet<>();
   private final RepositoryService repositoryService;
+  private final SmeagolConfigurationResolver smeagolConfigurationResolver;
 
-  public RevisionPathCollector(RepositoryService repositoryService) {
+  public RevisionPathCollector(RepositoryService repositoryService, SmeagolConfigurationResolver smeagolConfigurationResolver) {
     this.repositoryService = repositoryService;
+    this.smeagolConfigurationResolver = smeagolConfigurationResolver;
   }
 
   @Override
@@ -59,7 +61,7 @@ public class RevisionPathCollector implements PathCollector {
   }
 
   public void collect(String revision) {
-    new SmeagolConfigurationResolver(repositoryService)
+    smeagolConfigurationResolver
       .getSmeagolPath()
       .ifPresent(smeagolPath -> collect(revision, smeagolPath));
   }
@@ -87,7 +89,7 @@ public class RevisionPathCollector implements PathCollector {
       for (FileObject child : file.getChildren()) {
         collect(child);
       }
-    } else {
+    } else if(file.getName().toLowerCase(Locale.ENGLISH).endsWith(".md")) {
       pathToStore.add(file.getPath());
     }
   }
