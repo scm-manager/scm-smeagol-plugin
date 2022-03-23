@@ -27,6 +27,7 @@ package com.cloudogu.smeagol.search;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
+import sonia.scm.NotFoundException;
 import sonia.scm.repository.api.RepositoryService;
 
 import java.io.IOException;
@@ -34,7 +35,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static java.util.Optional.empty;
-import static java.util.Optional.ofNullable;
+import static java.util.Optional.of;
 
 public class SmeagolConfigurationResolver {
 
@@ -51,7 +52,10 @@ public class SmeagolConfigurationResolver {
       Yaml yaml = new Yaml();
       String smeagolConfig = service.getCatCommand().getContent(".smeagol.yml");
       Map<String, Object> smeagol = yaml.load(smeagolConfig);
-      return ofNullable(smeagol.get("directory")).map(Object::toString);
+      return of(smeagol.getOrDefault("directory", "docs")).map(Object::toString);
+    } catch (NotFoundException e) {
+      LOG.trace("no file '.smeagol.yml' found in repository {}", service.getRepository());
+      return empty();
     } catch (IOException e) {
       LOG.warn("could not read smeagol configuration for repository {}", service.getRepository());
       return empty();

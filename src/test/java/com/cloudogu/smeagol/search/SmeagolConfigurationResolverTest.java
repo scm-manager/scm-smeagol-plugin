@@ -29,6 +29,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import sonia.scm.NotFoundException;
 import sonia.scm.repository.api.RepositoryService;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,17 +46,26 @@ class SmeagolConfigurationResolverTest {
   private SmeagolConfigurationResolver resolver;
 
   @Test
-  void getSmeagolPathShouldReturnEmptyIfNoDirectorySpecified() throws Exception {
-    when(service.getCatCommand().getContent(".smeagol.yml")).thenReturn("test: 12");
-
-    assertThat(resolver.getSmeagolPath()).isEmpty();
-  }
-
-  @Test
-  void getSmeagolPathShouldGetDirectoryFromSmeagolConfig() throws Exception {
-    when(service.getCatCommand().getContent(".smeagol.yml")).thenReturn("test: 12\ndirectory: docs\n");
+  void getSmeagolPathShouldGetDefaultDirectoryIfNotSetExplicitly() throws Exception {
+    when(service.getCatCommand().getContent(".smeagol.yml"))
+      .thenReturn("test: 12");
 
     assertThat(resolver.getSmeagolPath()).get().isEqualTo("docs");
   }
 
+  @Test
+  void getSmeagolPathShouldGetDirectoryFromSmeagolConfig() throws Exception {
+    when(service.getCatCommand().getContent(".smeagol.yml"))
+      .thenReturn("test: 12\ndirectory: dokumente\n");
+
+    assertThat(resolver.getSmeagolPath()).get().isEqualTo("dokumente");
+  }
+
+  @Test
+  void getSmeagolPathShouldReturnEmptyResultWithoutSmeagolFile() throws Exception {
+    when(service.getCatCommand().getContent(".smeagol.yml"))
+      .thenThrow(NotFoundException.class);
+
+    assertThat(resolver.getSmeagolPath()).isEmpty();
+  }
 }
