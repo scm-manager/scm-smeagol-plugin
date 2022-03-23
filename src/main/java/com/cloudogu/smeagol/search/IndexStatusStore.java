@@ -34,11 +34,10 @@ import java.util.Optional;
 
 import static com.cloudogu.smeagol.search.IndexStatus.EMPTY;
 
-
 @Singleton
 public class IndexStatusStore {
 
-  private static final String STORE_NAME ="content-search-status";
+  private static final String STORE_NAME ="smeagol-search-status";
 
   private final DataStore<IndexStatus> store;
 
