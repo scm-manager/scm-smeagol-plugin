@@ -24,15 +24,13 @@
 
 package com.cloudogu.smeagol.search;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.yaml.snakeyaml.Yaml;
 import sonia.scm.repository.api.RepositoryService;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.Optional;
 
 import static java.util.Optional.empty;
@@ -50,20 +48,13 @@ public class SmeagolConfigurationResolver {
 
   Optional<String> getSmeagolPath() {
     try {
+      Yaml yaml = new Yaml();
       String smeagolConfig = service.getCatCommand().getContent(".smeagol.yml");
-      ObjectMapper om = new ObjectMapper(new YAMLFactory());
-      Smeagol smeagol = om.readValue(smeagolConfig, Smeagol.class);
-      return ofNullable(smeagol.getDirectory());
+      Map<String, Object> smeagol = yaml.load(smeagolConfig);
+      return ofNullable(smeagol.get("directory")).map(Object::toString);
     } catch (IOException e) {
       LOG.warn("could not read smeagol configuration for repository {}", service.getRepository());
       return empty();
     }
   }
-
-  @Data
-  @JsonIgnoreProperties(ignoreUnknown = true)
-  private static class Smeagol {
-    String directory;
-  }
-
 }
