@@ -24,17 +24,15 @@
 
 package com.cloudogu.smeagol.search;
 
-import com.github.legman.Subscribe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sonia.scm.plugin.Extension;
-import sonia.scm.repository.DefaultBranchChangedEvent;
-import sonia.scm.repository.PostReceiveRepositoryHookEvent;
 import sonia.scm.repository.Repository;
 import sonia.scm.repository.RepositoryManager;
 import sonia.scm.search.SearchEngine;
 import sonia.scm.web.security.AdministrationContext;
 
+import javax.inject.Inject;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
@@ -48,6 +46,7 @@ public class IndexListener implements ServletContextListener {
   private final RepositoryManager repositoryManager;
   private final SearchEngine searchEngine;
 
+  @Inject
   public IndexListener(AdministrationContext administrationContext, RepositoryManager repositoryManager, SearchEngine searchEngine) {
     this.administrationContext = administrationContext;
     this.repositoryManager = repositoryManager;
