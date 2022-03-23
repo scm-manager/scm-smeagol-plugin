@@ -31,34 +31,51 @@ import sonia.scm.NotFoundException;
 import sonia.scm.repository.api.RepositoryService;
 
 import java.io.IOException;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
-import static java.util.Optional.empty;
-import static java.util.Optional.of;
+import static java.util.Optional.ofNullable;
 
 public class SmeagolConfigurationResolver {
 
   private static final Logger LOG = LoggerFactory.getLogger(SmeagolConfigurationResolver.class);
+  private static final String DEFAULT_DOCS_DIRECTORY = "docs";
+  private static final String MARKDOWN_SUFFIX = ".md";
 
   private final RepositoryService service;
+  private String smeagolPath;
 
   public SmeagolConfigurationResolver(RepositoryService service) {
     this.service = service;
   }
 
-  Optional<String> getSmeagolPath() {
+  void readConfig() {
     try {
       Yaml yaml = new Yaml();
       String smeagolConfig = service.getCatCommand().getContent(".smeagol.yml");
       Map<String, Object> smeagol = yaml.load(smeagolConfig);
-      return of(smeagol.getOrDefault("directory", "docs")).map(Object::toString);
+      extractPathFromConfigMap(smeagol);
     } catch (NotFoundException e) {
       LOG.trace("no file '.smeagol.yml' found in repository {}", service.getRepository());
-      return empty();
     } catch (IOException e) {
       LOG.warn("could not read smeagol configuration for repository {}", service.getRepository());
-      return empty();
     }
+  }
+
+  Optional<String> getSmeagolPath() {
+    return ofNullable(smeagolPath);
+  }
+
+  private void extractPathFromConfigMap(Map<String, Object> smeagol) {
+    if (smeagol == null) {
+      smeagolPath = DEFAULT_DOCS_DIRECTORY;
+    } else {
+      smeagolPath = smeagol.getOrDefault("directory", DEFAULT_DOCS_DIRECTORY).toString();
+    }
+  }
+
+  boolean isSmeagolDocument(String path) {
+    return path.startsWith(smeagolPath) && path.toLowerCase(Locale.ENGLISH).endsWith(MARKDOWN_SUFFIX);
   }
 }

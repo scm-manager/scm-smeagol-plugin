@@ -52,7 +52,7 @@ class IndexingContext {
   }
 
   public UpdatePathCollector getUpdatePathCollector() {
-    return new UpdatePathCollector(repositoryService);
+    return new UpdatePathCollector(repositoryService, new SmeagolConfigurationResolver(repositoryService));
   }
 
   public RevisionPathCollector getRevisionPathCollector() {

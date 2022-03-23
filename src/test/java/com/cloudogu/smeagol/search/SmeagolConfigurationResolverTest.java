@@ -26,11 +26,16 @@ package com.cloudogu.smeagol.search;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import sonia.scm.NotFoundException;
 import sonia.scm.repository.api.RepositoryService;
+
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
@@ -45,20 +50,23 @@ class SmeagolConfigurationResolverTest {
   @InjectMocks
   private SmeagolConfigurationResolver resolver;
 
-  @Test
-  void getSmeagolPathShouldGetDefaultDirectoryIfNotSetExplicitly() throws Exception {
+  @ParameterizedTest
+  @MethodSource("provideTestDataForGetSmeagolPath")
+  void getSmeagolPath(String smeagolConfig, String expected) throws Exception {
     when(service.getCatCommand().getContent(".smeagol.yml"))
-      .thenReturn("test: 12");
+      .thenReturn(smeagolConfig);
 
-    assertThat(resolver.getSmeagolPath()).get().isEqualTo("docs");
+    resolver.readConfig();
+
+    assertThat(resolver.getSmeagolPath()).get().isEqualTo(expected);
   }
 
-  @Test
-  void getSmeagolPathShouldGetDirectoryFromSmeagolConfig() throws Exception {
-    when(service.getCatCommand().getContent(".smeagol.yml"))
-      .thenReturn("test: 12\ndirectory: dokumente\n");
-
-    assertThat(resolver.getSmeagolPath()).get().isEqualTo("dokumente");
+  private static Stream<Arguments> provideTestDataForGetSmeagolPath() {
+    return Stream.of(
+      Arguments.of("test: 12", "docs"),
+      Arguments.of("", "docs"),
+      Arguments.of("test: 12\ndirectory: dokumente\n", "dokumente")
+    );
   }
 
   @Test
@@ -66,6 +74,32 @@ class SmeagolConfigurationResolverTest {
     when(service.getCatCommand().getContent(".smeagol.yml"))
       .thenThrow(NotFoundException.class);
 
+    resolver.readConfig();
+
     assertThat(resolver.getSmeagolPath()).isEmpty();
+  }
+
+  @ParameterizedTest
+  @MethodSource("provideTestDataForIsSmeagolDocument")
+  void isSmeagolDocument(String smeagolConfig, String path, boolean expected) throws Exception {
+    when(service.getCatCommand().getContent(".smeagol.yml"))
+      .thenReturn(smeagolConfig);
+
+    resolver.readConfig();
+
+    assertThat(resolver.isSmeagolDocument(path)).isEqualTo(expected);
+  }
+
+  private static Stream<Arguments> provideTestDataForIsSmeagolDocument() {
+    return Stream.of(
+      Arguments.of("", "docs/a.md", true),
+      Arguments.of("", "docs/A.MD", true),
+      Arguments.of("", "docs/b.png", false),
+      Arguments.of("", "other/a.md", false),
+      Arguments.of("test: 12\ndirectory: dokumente\n", "dokumente/a.md", true),
+      Arguments.of("test: 12\ndirectory: dokumente\n", "dokumente/A.MD", true),
+      Arguments.of("test: 12\ndirectory: dokumente\n", "dokumente/b.png", false),
+      Arguments.of("test: 12\ndirectory: dokumente\n", "docs/a.md", false)
+    );
   }
 }

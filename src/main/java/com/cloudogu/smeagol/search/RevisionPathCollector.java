@@ -34,7 +34,6 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Locale;
 import java.util.Set;
 
 public class RevisionPathCollector implements PathCollector {
@@ -61,6 +60,7 @@ public class RevisionPathCollector implements PathCollector {
   }
 
   public void collect(String revision) {
+    smeagolConfigurationResolver.readConfig();
     smeagolConfigurationResolver
       .getSmeagolPath()
       .ifPresent(smeagolPath -> collect(revision, smeagolPath));
@@ -89,7 +89,7 @@ public class RevisionPathCollector implements PathCollector {
       for (FileObject child : file.getChildren()) {
         collect(child);
       }
-    } else if(file.getName().toLowerCase(Locale.ENGLISH).endsWith(".md")) {
+    } else if (smeagolConfigurationResolver.isSmeagolDocument(file.getPath())) {
       pathToStore.add(file.getPath());
     }
   }

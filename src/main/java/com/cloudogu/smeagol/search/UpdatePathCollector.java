@@ -23,6 +23,8 @@
  */
 package com.cloudogu.smeagol.search;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import sonia.scm.repository.Added;
 import sonia.scm.repository.Copied;
 import sonia.scm.repository.Modifications;
@@ -35,16 +37,21 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public class UpdatePathCollector implements PathCollector {
 
+  private static final Logger LOG = LoggerFactory.getLogger(UpdatePathCollector.class);
+
   private final Set<String> pathToStore = new HashSet<>();
   private final Set<String> pathToDelete = new HashSet<>();
   private final RepositoryService repositoryService;
+  private final SmeagolConfigurationResolver smeagolConfigurationResolver;
 
-  public UpdatePathCollector(RepositoryService repositoryService) {
+  public UpdatePathCollector(RepositoryService repositoryService, SmeagolConfigurationResolver smeagolConfigurationResolver) {
     this.repositoryService = repositoryService;
+    this.smeagolConfigurationResolver = smeagolConfigurationResolver;
   }
 
   @Override
@@ -57,15 +64,25 @@ public class UpdatePathCollector implements PathCollector {
     return pathToDelete;
   }
 
-  void collect(String from, String to) throws IOException {
-    Modifications modifications = repositoryService.getModificationsCommand()
-      .baseRevision(from)
-      .revision(to)
-      .disablePreProcessors(true)
-      .disableCache(true)
-      .getModifications();
+  void collect(String from, String to) {
+    smeagolConfigurationResolver.readConfig();
+    Optional<String> smeagolPath = smeagolConfigurationResolver.getSmeagolPath();
+    if (!smeagolPath.isPresent()) {
+      return;
+    }
 
-    collect(modifications);
+    try {
+      Modifications modifications = repositoryService.getModificationsCommand()
+        .baseRevision(from)
+        .revision(to)
+        .disablePreProcessors(true)
+        .disableCache(true)
+        .getModifications();
+
+      collect(modifications);
+    } catch (IOException e) {
+      LOG.warn("could not load modifications from revision {} to {} in repository {}", from, to, repositoryService.getRepository());
+    }
   }
 
   private void collect(Modifications modifications) {
@@ -108,11 +125,15 @@ public class UpdatePathCollector implements PathCollector {
   }
 
   private void store(String path) {
-    pathToStore.add(path);
+    if (smeagolConfigurationResolver.isSmeagolDocument(path)) {
+      pathToStore.add(path);
+    }
   }
 
   private void delete(String path) {
-    pathToDelete.add(path);
+    if (smeagolConfigurationResolver.isSmeagolDocument(path)) {
+      pathToDelete.add(path);
+    }
   }
 
 }
