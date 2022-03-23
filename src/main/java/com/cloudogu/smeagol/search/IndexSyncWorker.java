@@ -64,8 +64,6 @@ class IndexSyncWorker {
         reIndex();
       } else if (indexStatus.isEmpty()) {
         reIndex();
-      } else if (smeagolConfigurationChanged()) {
-        reIndex();
       } else {
         ensureIndexIsUpToDate(indexStatus.getRevision());
       }
@@ -73,10 +71,6 @@ class IndexSyncWorker {
       LOG.debug("no index status present for repository {}, trigger reindex", repository);
       reIndex();
     }
-  }
-
-  private boolean smeagolConfigurationChanged() {
-    return false;
   }
 
   private void ensureIndexIsUpToDate(String revision) throws IOException {
@@ -97,7 +91,12 @@ class IndexSyncWorker {
     LOG.debug("start updating index of repository {} from {} to {}", repository, from, to);
 
     updatePathCollector.collect(from, to);
-    updateIndex(to, updatePathCollector);
+
+    if (updatePathCollector.isConfigurationChanged()) {
+      reIndex();
+    } else {
+      updateIndex(to, updatePathCollector);
+    }
   }
 
   private void updateIndex(String revision, PathCollector collector) throws IOException {

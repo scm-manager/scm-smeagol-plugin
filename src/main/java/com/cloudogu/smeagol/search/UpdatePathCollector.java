@@ -49,6 +49,8 @@ public class UpdatePathCollector implements PathCollector {
   private final RepositoryService repositoryService;
   private final SmeagolConfigurationResolver smeagolConfigurationResolver;
 
+  private boolean configurationChanged = false;
+
   public UpdatePathCollector(RepositoryService repositoryService, SmeagolConfigurationResolver smeagolConfigurationResolver) {
     this.repositoryService = repositoryService;
     this.smeagolConfigurationResolver = smeagolConfigurationResolver;
@@ -127,13 +129,20 @@ public class UpdatePathCollector implements PathCollector {
   private void store(String path) {
     if (smeagolConfigurationResolver.isSmeagolDocument(path)) {
       pathToStore.add(path);
+    } else if (path.equals(".smeagol.yml")) {
+      configurationChanged = true;
     }
   }
 
   private void delete(String path) {
     if (smeagolConfigurationResolver.isSmeagolDocument(path)) {
       pathToDelete.add(path);
+    } else if (path.equals(".smeagol.yml")) {
+      configurationChanged = true;
     }
   }
 
+  public boolean isConfigurationChanged() {
+    return configurationChanged;
+  }
 }

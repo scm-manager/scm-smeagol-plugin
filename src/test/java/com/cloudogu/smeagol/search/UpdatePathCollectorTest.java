@@ -76,60 +76,96 @@ class UpdatePathCollectorTest {
   }
 
   @Nested
-  class WithDocumentsTest {
+  class WithModificationsTest {
 
     @BeforeEach
-    void setUpFiles() throws IOException {
+    void setUpFiles() {
       when(smeagolConfigurationResolver.getSmeagolPath()).thenReturn(of("docs"));
 
       when(repositoryService.getModificationsCommand()).thenReturn(modificationsCommand);
-      when(modificationsCommand.getModifications()).thenReturn(createModifications());
+    }
+
+    @Nested
+    class WithChangedDocumentsTest {
+
+      @BeforeEach
+      void mockModifiedDocuments() throws IOException {
+        when(modificationsCommand.getModifications()).thenReturn(createModifications());
+      }
+
+      @Test
+      void shouldSetRevisions() {
+        collector.collect("23", "42");
+
+        verify(modificationsCommand).baseRevision("23");
+        verify(modificationsCommand).revision("42");
+      }
+
+      @Test
+      void shouldCollectFilesFromSmeagolDirectory() {
+        when(smeagolConfigurationResolver.isSmeagolDocument(any()))
+          .thenAnswer(invocation -> invocation.getArgument(0, String.class).startsWith("docs/"));
+
+        collector.collect("23", "42");
+
+        assertThat(collector.getPathToStore()).containsExactlyInAnyOrder(
+          "docs/a.md",
+          "docs/m.md",
+          "docs/c.md",
+          "docs/y.md"
+        );
+        assertThat(collector.getPathToDelete()).containsExactlyInAnyOrder(
+          "docs/r.md",
+          "docs/x.md"
+        );
+        InOrder inOrder = inOrder(smeagolConfigurationResolver);
+        inOrder.verify(smeagolConfigurationResolver).readConfig();
+        inOrder.verify(smeagolConfigurationResolver).getSmeagolPath();
+      }
+
+      private Modifications createModifications() {
+        return new Modifications(
+          "42",
+          new Added("docs/a.md"),
+          new Modified("docs/m.md"),
+          new Copied("docs/a.md", "docs/c.md"),
+          new Removed("docs/r.md"),
+          new Renamed("docs/x.md", "docs/y.md"),
+          new Added("somewhere/a.md"),
+          new Modified("somewhere/m.md"),
+          new Copied("somewhere/a.md", "somewhere/c.md"),
+          new Removed("somewhere/r.md"),
+          new Renamed("somewhere/x.md", "somewhere/y.md")
+        );
+      }
     }
 
     @Test
-    void shouldSetRevisions() {
+    void shouldDetectChangedSmeagolConfig() throws IOException {
+      when(modificationsCommand.getModifications())
+        .thenReturn(
+          new Modifications(
+            "42",
+            new Modified(".smeagol.yml")
+          ));
+
       collector.collect("23", "42");
 
-      verify(modificationsCommand).baseRevision("23");
-      verify(modificationsCommand).revision("42");
+      assertThat(collector.isConfigurationChanged()).isTrue();
     }
 
     @Test
-    void shouldCollectFilesFromSmeagolDirectory() {
-      when(smeagolConfigurationResolver.isSmeagolDocument(any()))
-        .thenAnswer(invocation -> invocation.getArgument(0, String.class).startsWith("docs/"));
+    void shouldDetectDeletedSmeagolConfig() throws IOException {
+      when(modificationsCommand.getModifications())
+        .thenReturn(
+          new Modifications(
+            "42",
+            new Removed(".smeagol.yml")
+          ));
 
       collector.collect("23", "42");
 
-      assertThat(collector.getPathToStore()).containsExactlyInAnyOrder(
-        "docs/a.md",
-        "docs/m.md",
-        "docs/c.md",
-        "docs/y.md"
-      );
-      assertThat(collector.getPathToDelete()).containsExactlyInAnyOrder(
-        "docs/r.md",
-        "docs/x.md"
-      );
-      InOrder inOrder = inOrder(smeagolConfigurationResolver);
-      inOrder.verify(smeagolConfigurationResolver).readConfig();
-      inOrder.verify(smeagolConfigurationResolver).getSmeagolPath();
+      assertThat(collector.isConfigurationChanged()).isTrue();
     }
-  }
-
-    private Modifications createModifications() {
-    return new Modifications(
-      "42",
-      new Added("docs/a.md"),
-      new Modified("docs/m.md"),
-      new Copied("docs/a.md", "docs/c.md"),
-      new Removed("docs/r.md"),
-      new Renamed("docs/x.md", "docs/y.md"),
-      new Added("somewhere/a.md"),
-      new Modified("somewhere/m.md"),
-      new Copied("somewhere/a.md", "somewhere/c.md"),
-      new Removed("somewhere/r.md"),
-      new Renamed("somewhere/x.md", "somewhere/y.md")
-    );
   }
 }
