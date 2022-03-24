@@ -53,7 +53,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class UpdatePathCollectorTest {
+class SmeagolUpdatePathCollectorTest {
 
   @Mock
   private RepositoryService repositoryService;
@@ -63,10 +63,10 @@ class UpdatePathCollectorTest {
   private SmeagolConfigurationResolver smeagolConfigurationResolver;
 
   @InjectMocks
-  private UpdatePathCollector collector;
+  private SmeagolUpdatePathCollector collector;
 
   @Test
-  void shouldCollectNothingWithoutSmeagolFile() {
+  void shouldCollectNothingWithoutSmeagolFile() throws IOException {
     when(smeagolConfigurationResolver.getSmeagolPath()).thenReturn(empty());
 
     collector.collect("23", "42");
@@ -94,7 +94,7 @@ class UpdatePathCollectorTest {
       }
 
       @Test
-      void shouldSetRevisions() {
+      void shouldSetRevisions() throws IOException {
         collector.collect("23", "42");
 
         verify(modificationsCommand).baseRevision("23");
@@ -102,7 +102,7 @@ class UpdatePathCollectorTest {
       }
 
       @Test
-      void shouldCollectFilesFromSmeagolDirectory() {
+      void shouldCollectFilesFromSmeagolDirectory() throws IOException {
         when(smeagolConfigurationResolver.isSmeagolDocument(any()))
           .thenAnswer(invocation -> invocation.getArgument(0, String.class).startsWith("docs/"));
 

@@ -21,35 +21,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package com.cloudogu.smeagol.search;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import sonia.scm.xml.XmlInstantAdapter;
+import com.cloudogu.scm.search.IndexSyncWorker;
+import com.cloudogu.scm.search.IndexingContext;
+import com.cloudogu.scm.search.PathCollector;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import java.time.Instant;
+import java.io.IOException;
 
-@Data
-@XmlRootElement
-@NoArgsConstructor
-@AllArgsConstructor
-@XmlAccessorType(XmlAccessType.FIELD)
-public class IndexStatus {
+class SmeagolIndexSyncWorker extends IndexSyncWorker<SmeagolDocument> {
 
-  static final String EMPTY = "__empty";
-
-  private String revision;
-  @XmlJavaTypeAdapter(XmlInstantAdapter.class)
-  private Instant lastUpdate;
-  private int version;
-
-  public boolean isEmpty() {
-    return EMPTY.equals(revision);
+  SmeagolIndexSyncWorker(IndexingContext<SmeagolDocument> indexingContext) {
+    super(indexingContext);
   }
 
+  @Override
+  protected void updateIndex(String revision, PathCollector collector) throws IOException {
+    if (collector instanceof SmeagolUpdatePathCollector && ((SmeagolUpdatePathCollector) collector).isConfigurationChanged()) {
+      reIndex();
+    } else {
+      super.updateIndex(revision, collector);
+    }
+  }
 }

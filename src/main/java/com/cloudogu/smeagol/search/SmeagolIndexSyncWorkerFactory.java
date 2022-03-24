@@ -22,30 +22,26 @@
  * SOFTWARE.
  */
 
-plugins {
-  id 'org.scm-manager.smp' version '0.10.1'
-}
+package com.cloudogu.smeagol.search;
 
-dependencies {
-  // Though the smeagol plugin does not technically depend upon the
-  // rest legacy plugin, we add this dependency nonetheless because
-  // smeagol would not run without this plugin. With this dependency
-  // the rest legacy plugin will be installed automatically to avoid
-  // confusion.
-  plugin "sonia.scm.plugins:scm-rest-legacy-plugin:2.0.0"
-  implementation "org.yaml:snakeyaml:1.30"
-  plugin "sonia.scm.plugins:scm-search-support-plugin:1.0.0-SNAPSHOT"
-}
+import com.cloudogu.scm.search.IndexSyncWorkerFactory;
+import com.cloudogu.scm.search.Indexer;
+import sonia.scm.repository.api.RepositoryService;
 
-repositories {
-  mavenLocal()
-}
+import javax.inject.Inject;
 
-scmPlugin {
-  scmVersion = "2.23.0"
-  displayName = "Smeagol Integration"
-  description = "Adds specialized endpoints used by Smeagol"
-  author = "Cloudogu GmbH"
-  category = "Documentation"
-  avatarUrl = '/images/smeagol-logo.png'
+public class SmeagolIndexSyncWorkerFactory implements IndexSyncWorkerFactory<SmeagolDocument> {
+
+  private final SmeagolIndexingContextFactory indexingContextFactory;
+
+  @Inject
+  public SmeagolIndexSyncWorkerFactory(SmeagolIndexingContextFactory indexingContextFactory) {
+    this.indexingContextFactory = indexingContextFactory;
+  }
+
+  @Override
+  public SmeagolIndexSyncWorker create(RepositoryService repositoryService, Indexer<SmeagolDocument> indexer, int currentIndexVersion) {
+    return new SmeagolIndexSyncWorker(indexingContextFactory.create(repositoryService, indexer));
+  }
+
 }

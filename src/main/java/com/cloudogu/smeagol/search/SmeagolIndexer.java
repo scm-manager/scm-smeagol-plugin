@@ -21,52 +21,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package com.cloudogu.smeagol.search;
 
-import sonia.scm.repository.Repository;
-import sonia.scm.store.DataStore;
-import sonia.scm.store.DataStoreFactory;
+import com.cloudogu.scm.search.Indexer;
+import sonia.scm.repository.api.RepositoryService;
+import sonia.scm.search.Index;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
-import java.time.Instant;
-import java.util.Optional;
 
-import static com.cloudogu.smeagol.search.IndexStatus.EMPTY;
-
-@Singleton
-public class IndexStatusStore {
-
-  private static final String STORE_NAME ="smeagol-search-status";
-
-  private final DataStore<IndexStatus> store;
+@SuppressWarnings("UnstableApiUsage")
+class SmeagolIndexer extends Indexer<SmeagolDocument> {
 
   @Inject
-  public IndexStatusStore(DataStoreFactory storeFactory) {
-    this.store = storeFactory.withType(IndexStatus.class).withName(STORE_NAME).build();
+  SmeagolIndexer(SmeagolDocumentFactory smeagolDocumentFactory, Index<SmeagolDocument> index, RepositoryService repositoryService) {
+    super(SmeagolDocument.class, smeagolDocumentFactory, index, repositoryService);
   }
-
-  public void empty(Repository repository) {
-    update(repository, EMPTY);
-  }
-
-  private IndexStatus status(String revision) {
-    return new IndexStatus(revision, Instant.now(), SmeagolDocument.VERSION);
-  }
-
-  public void update(Repository repository, String revision) {
-    store.put(repository.getId(), status(revision));
-  }
-
-  void update(Repository repository, String revision, int version) {
-    IndexStatus status = status(revision);
-    status.setVersion(version);
-    store.put(repository.getId(), status);
-  }
-
-  public Optional<IndexStatus> get(Repository repository) {
-    return store.getOptional(repository.getId());
-  }
-
 }
-

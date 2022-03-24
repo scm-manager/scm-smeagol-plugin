@@ -24,21 +24,24 @@
 
 package com.cloudogu.smeagol.search;
 
+import com.cloudogu.scm.search.IndexerFactory;
 import sonia.scm.repository.api.RepositoryService;
+import sonia.scm.search.Index;
 
 import javax.inject.Inject;
 
-public class IndexingContextFactory {
+@SuppressWarnings("UnstableApiUsage")
+public class SmeagolIndexerFactory implements IndexerFactory<SmeagolDocument> {
 
-  private final IndexStatusStore indexStatusStore;
+  private final SmeagolDocumentFactory smeagolDocumentFactory;
 
   @Inject
-  public IndexingContextFactory(IndexStatusStore indexStatusStore) {
-    this.indexStatusStore = indexStatusStore;
+  public SmeagolIndexerFactory(SmeagolDocumentFactory smeagolDocumentFactory) {
+    this.smeagolDocumentFactory = smeagolDocumentFactory;
   }
 
-  public IndexingContext create(RepositoryService repositoryService, Indexer indexer) {
-    return new IndexingContext(repositoryService, indexStatusStore, indexer);
+  public SmeagolIndexer create(Index<SmeagolDocument> index, RepositoryService repositoryService) {
+    return new SmeagolIndexer(smeagolDocumentFactory, index, repositoryService);
   }
 
 }

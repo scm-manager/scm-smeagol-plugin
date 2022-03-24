@@ -24,11 +24,26 @@
 
 package com.cloudogu.smeagol.search;
 
-import java.util.Collection;
+import com.cloudogu.scm.search.IndexStatusStore;
+import com.cloudogu.scm.search.Indexer;
+import com.cloudogu.scm.search.IndexingContext;
+import com.cloudogu.scm.search.RevisionPathCollector;
+import com.cloudogu.scm.search.UpdatePathCollector;
+import sonia.scm.repository.api.RepositoryService;
 
-public interface PathCollector {
+class SmeagolIndexingContext extends IndexingContext<SmeagolDocument> {
 
-  Collection<String> getPathToStore();
-  Collection<String> getPathToDelete();
+  SmeagolIndexingContext(RepositoryService repositoryService, IndexStatusStore indexStatusStore, Indexer<SmeagolDocument> indexer) {
+    super(repositoryService, indexStatusStore, indexer, 1);
+  }
 
+  @Override
+  public UpdatePathCollector getUpdatePathCollector() {
+    return new SmeagolUpdatePathCollector(getRepositoryService(), new SmeagolConfigurationResolver(getRepositoryService()));
+  }
+
+  @Override
+  public RevisionPathCollector getRevisionPathCollector() {
+    return new SmeagolRevisionPathCollector(getRepositoryService(), new SmeagolConfigurationResolver(getRepositoryService()));
+  }
 }

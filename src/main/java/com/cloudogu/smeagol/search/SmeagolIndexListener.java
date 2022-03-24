@@ -24,43 +24,28 @@
 
 package com.cloudogu.smeagol.search;
 
+import com.cloudogu.scm.search.IndexListener;
+import sonia.scm.plugin.Extension;
 import sonia.scm.repository.Repository;
-import sonia.scm.repository.api.RepositoryService;
+import sonia.scm.repository.RepositoryManager;
+import sonia.scm.search.SearchEngine;
+import sonia.scm.web.security.AdministrationContext;
 
-class IndexingContext {
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
-  private final RepositoryService repositoryService;
-  private final IndexStatusStore indexStatusStore;
-  private final Indexer indexer;
+@Singleton
+@Extension
+@SuppressWarnings("UnstableApiUsage")
+public class SmeagolIndexListener extends IndexListener<SmeagolDocument> {
 
-  IndexingContext(RepositoryService repositoryService, IndexStatusStore indexStatusStore, Indexer indexer) {
-    this.repositoryService = repositoryService;
-    this.indexStatusStore = indexStatusStore;
-    this.indexer = indexer;
+  @Inject
+  public SmeagolIndexListener(AdministrationContext administrationContext, RepositoryManager repositoryManager, SearchEngine searchEngine) {
+    super(SmeagolDocument.class, administrationContext, repositoryManager, searchEngine, SmeagolIndexerTask::new);
   }
 
-  public Repository getRepository() {
-    return repositoryService.getRepository();
+  @Override
+  protected boolean inspectRepository(Repository repository) {
+    return "git".equals(repository.getType());
   }
-
-  public Indexer getIndexer() {
-    return indexer;
-  }
-
-  public IndexStatusStore getIndexStatusStore() {
-    return indexStatusStore;
-  }
-
-  public UpdatePathCollector getUpdatePathCollector() {
-    return new UpdatePathCollector(repositoryService, new SmeagolConfigurationResolver(repositoryService));
-  }
-
-  public RevisionPathCollector getRevisionPathCollector() {
-    return new RevisionPathCollector(repositoryService, new SmeagolConfigurationResolver(repositoryService));
-  }
-
-  public LatestRevisionResolver getLatestRevisionResolver() {
-    return new LatestRevisionResolver(repositoryService, new DefaultBranchResolver(repositoryService));
-  }
-
 }

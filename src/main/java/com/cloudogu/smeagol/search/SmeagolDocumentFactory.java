@@ -23,6 +23,7 @@
  */
 package com.cloudogu.smeagol.search;
 
+import com.cloudogu.scm.search.ContentFactory;
 import com.google.common.io.ByteStreams;
 import sonia.scm.repository.api.RepositoryService;
 
@@ -30,7 +31,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class SmeagolDocumentFactory {
+public class SmeagolDocumentFactory implements ContentFactory<SmeagolDocument> {
 
   public SmeagolDocument create(RepositoryService repositoryService, String revision, String path) throws IOException {
     try (InputStream content = repositoryService.getCatCommand().setRevision(revision).getStream(path)) {

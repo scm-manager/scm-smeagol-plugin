@@ -24,6 +24,7 @@
 
 package com.cloudogu.smeagol.search;
 
+import com.cloudogu.scm.search.DefaultBranchResolver;
 import sonia.scm.repository.Changeset;
 import sonia.scm.repository.api.LogCommandBuilder;
 import sonia.scm.repository.api.RepositoryService;

@@ -24,36 +24,15 @@
 
 package com.cloudogu.smeagol.search;
 
-import com.google.common.annotations.VisibleForTesting;
-import sonia.scm.repository.Repository;
-import sonia.scm.search.Index;
-import sonia.scm.search.SerializableIndexTask;
+import com.cloudogu.scm.search.IndexSyncer;
+import sonia.scm.repository.api.RepositoryServiceFactory;
 
 import javax.inject.Inject;
 
-@SuppressWarnings("UnstableApiUsage")
-public class IndexerTask implements SerializableIndexTask<SmeagolDocument> {
-
-  private final Repository repository;
-
-  private IndexSyncer syncer;
-
-  public IndexerTask(Repository repository) {
-    this.repository = repository;
-  }
+public class SmeagolIndexSyncer extends IndexSyncer<SmeagolDocument> {
 
   @Inject
-  public void setSyncer(IndexSyncer syncer) {
-    this.syncer = syncer;
-  }
-
-  @VisibleForTesting
-  Repository getRepository() {
-    return repository;
-  }
-
-  @Override
-  public void update(Index<SmeagolDocument> index) {
-    syncer.ensureIndexIsUpToDate(index, repository);
+  public SmeagolIndexSyncer(RepositoryServiceFactory repositoryServiceFactory, SmeagolIndexerFactory smeagolIndexerFactory, SmeagolIndexSyncWorkerFactory indexSyncWorkerFactory) {
+    super(repositoryServiceFactory, smeagolIndexerFactory, indexSyncWorkerFactory, 1);
   }
 }
