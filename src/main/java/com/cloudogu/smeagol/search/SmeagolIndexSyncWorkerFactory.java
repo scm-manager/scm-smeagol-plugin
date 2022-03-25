@@ -40,7 +40,7 @@ public class SmeagolIndexSyncWorkerFactory implements IndexSyncWorkerFactory<Sme
   }
 
   @Override
-  public SmeagolIndexSyncWorker create(RepositoryService repositoryService, Indexer<SmeagolDocument> indexer, int currentIndexVersion) {
+  public SmeagolIndexSyncWorker create(RepositoryService repositoryService, Indexer<SmeagolDocument> indexer) {
     return new SmeagolIndexSyncWorker(indexingContextFactory.create(repositoryService, indexer));
   }
 

@@ -33,6 +33,6 @@ public class SmeagolIndexSyncer extends IndexSyncer<SmeagolDocument> {
 
   @Inject
   public SmeagolIndexSyncer(RepositoryServiceFactory repositoryServiceFactory, SmeagolIndexerFactory smeagolIndexerFactory, SmeagolIndexSyncWorkerFactory indexSyncWorkerFactory) {
-    super(repositoryServiceFactory, smeagolIndexerFactory, indexSyncWorkerFactory, 1);
+    super(repositoryServiceFactory, smeagolIndexerFactory, indexSyncWorkerFactory);
   }
 }

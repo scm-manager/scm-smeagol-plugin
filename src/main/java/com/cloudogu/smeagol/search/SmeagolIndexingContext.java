@@ -34,7 +34,7 @@ import sonia.scm.repository.api.RepositoryService;
 class SmeagolIndexingContext extends IndexingContext<SmeagolDocument> {
 
   SmeagolIndexingContext(RepositoryService repositoryService, IndexStatusStore indexStatusStore, Indexer<SmeagolDocument> indexer) {
-    super(repositoryService, indexStatusStore, indexer, 1);
+    super(repositoryService, indexStatusStore, indexer);
   }
 
   @Override

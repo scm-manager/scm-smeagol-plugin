@@ -33,7 +33,7 @@ import java.io.IOException;
 class SmeagolIndexSyncWorker extends IndexSyncWorker<SmeagolDocument> {
 
   SmeagolIndexSyncWorker(IndexingContext<SmeagolDocument> indexingContext) {
-    super(indexingContext);
+    super(indexingContext, SmeagolDocument.VERSION);
   }
 
   @Override
