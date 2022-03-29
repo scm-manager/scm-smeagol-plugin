@@ -54,14 +54,14 @@ class Indexer {
     this.repository = repositoryService.getRepository();
   }
 
-  void store(String revision, Collection<String> paths) throws IOException {
+  void store(Branch branch, Collection<String> paths) throws IOException {
     if (paths.isEmpty()) {
       return;
     }
 
     for (String path : paths) {
       LOG.trace("store {} to index", path);
-      SmeagolDocument fileContent = smeagolDocumentFactory.create(repositoryService, revision, path);
+      SmeagolDocument fileContent = smeagolDocumentFactory.create(repositoryService, branch, path);
       index.store(id(path), permission(), fileContent);
     }
   }

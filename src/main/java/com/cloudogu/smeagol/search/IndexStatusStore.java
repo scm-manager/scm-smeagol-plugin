@@ -47,19 +47,19 @@ public class IndexStatusStore {
   }
 
   public void empty(Repository repository) {
-    update(repository, EMPTY);
+    update(repository, new Branch(EMPTY, EMPTY));
   }
 
-  private IndexStatus status(String revision) {
-    return new IndexStatus(revision, Instant.now(), SmeagolDocument.VERSION);
+  private IndexStatus status(Branch branch) {
+    return new IndexStatus(branch.getRevision(), branch.getName(), Instant.now(), SmeagolDocument.VERSION);
   }
 
-  public void update(Repository repository, String revision) {
-    store.put(repository.getId(), status(revision));
+  public void update(Repository repository, Branch branch) {
+    store.put(repository.getId(), status(branch));
   }
 
-  void update(Repository repository, String revision, int version) {
-    IndexStatus status = status(revision);
+  void update(Repository repository, Branch branch, int version) {
+    IndexStatus status = status(branch);
     status.setVersion(version);
     store.put(repository.getId(), status);
   }

@@ -42,25 +42,27 @@ public class LatestRevisionResolver {
     this.defaultBranchResolver = defaultBranchResolver;
   }
 
-  public Optional<String> resolve() throws IOException {
+  public Optional<Branch> resolve() throws IOException {
     DefaultBranchResolver.Result result = defaultBranchResolver.resolve();
     if (result.isEmpty()) {
       return Optional.empty();
     }
 
-    LogCommandBuilder logCommand = repositoryService.getLogCommand()
-      .setPagingLimit(1)
-      .setDisablePreProcessors(true)
-      .setDisableCache(true);
+    Optional<String> defaultBranch = result.getDefaultBranch();
+    if (defaultBranch.isPresent()) {
+      List<Changeset> changesets = repositoryService.getLogCommand()
+        .setPagingLimit(1)
+        .setDisablePreProcessors(true)
+        .setBranch(defaultBranch.get())
+        .setDisableCache(true).getChangesets().getChangesets();
+      if (changesets.isEmpty()) {
+        return Optional.empty();
+      }
 
-    result.getDefaultBranch().ifPresent(logCommand::setBranch);
-
-    List<Changeset> changesets = logCommand.getChangesets().getChangesets();
-    if (changesets.isEmpty()) {
+      return Optional.of(new Branch(defaultBranch.get(), changesets.get(0).getId()));
+    } else {
       return Optional.empty();
     }
-
-    return Optional.of(changesets.get(0).getId());
   }
 
 }

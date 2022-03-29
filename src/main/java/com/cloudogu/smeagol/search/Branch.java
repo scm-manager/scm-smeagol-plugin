@@ -24,49 +24,11 @@
 
 package com.cloudogu.smeagol.search;
 
-import lombok.Getter;
-import sonia.scm.search.Indexed;
-import sonia.scm.search.IndexedType;
+import lombok.Value;
 
-import java.nio.file.Paths;
+@Value
+class Branch {
 
-@Getter
-@IndexedType
-@SuppressWarnings("UnstableApiUsage")
-public class SmeagolDocument {
-  public static final int VERSION = 1;
-
-  @Indexed(type = Indexed.Type.STORED_ONLY)
-  private final String revision;
-
-  @Indexed(type = Indexed.Type.STORED_ONLY)
-  private final String path;
-
-  @Indexed(type = Indexed.Type.STORED_ONLY)
-  private final String branch;
-
-  @Indexed(type = Indexed.Type.STORED_ONLY)
-  private final String repositoryId;
-
-  @Indexed(
-    defaultQuery = true,
-    analyzer = Indexed.Analyzer.PATH
-  )
-  private final String filename;
-
-  @Indexed(
-    defaultQuery = true,
-    highlighted = true,
-    analyzer = Indexed.Analyzer.DEFAULT
-  )
-  private final String content;
-
-  public SmeagolDocument(Branch branch, String path, String repositoryId, String content) {
-    this.revision = branch.getRevision();
-    this.path = path;
-    this.filename = Paths.get(path).getFileName().toString();
-    this.branch = branch.getName();
-    this.repositoryId = repositoryId;
-    this.content = content;
-  }
+  String name;
+  String revision;
 }

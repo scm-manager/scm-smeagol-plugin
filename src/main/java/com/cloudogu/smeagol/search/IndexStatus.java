@@ -44,6 +44,7 @@ public class IndexStatus {
   static final String EMPTY = "__empty";
 
   private String revision;
+  private String branch;
   @XmlJavaTypeAdapter(XmlInstantAdapter.class)
   private Instant lastUpdate;
   private int version;

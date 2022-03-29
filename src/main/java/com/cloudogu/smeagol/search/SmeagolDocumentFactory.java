@@ -32,11 +32,11 @@ import java.io.InputStream;
 
 public class SmeagolDocumentFactory {
 
-  public SmeagolDocument create(RepositoryService repositoryService, String revision, String path) throws IOException {
-    try (InputStream content = repositoryService.getCatCommand().setRevision(revision).getStream(path)) {
+  public SmeagolDocument create(RepositoryService repositoryService, Branch branch, String path) throws IOException {
+    try (InputStream content = repositoryService.getCatCommand().setRevision(branch.getRevision()).getStream(path)) {
       ByteArrayOutputStream output = new ByteArrayOutputStream();
       ByteStreams.copy(content, output);
-      return new SmeagolDocument(revision, path, output.toString());
+      return new SmeagolDocument(branch, path, repositoryService.getRepository().getId(), output.toString());
     }
   }
 }
