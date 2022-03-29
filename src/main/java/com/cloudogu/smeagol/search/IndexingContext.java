@@ -59,8 +59,8 @@ class IndexingContext {
     return new RevisionPathCollector(repositoryService, new SmeagolConfigurationResolver(repositoryService));
   }
 
-  public LatestRevisionResolver getLatestRevisionResolver() {
-    return new LatestRevisionResolver(repositoryService, new DefaultBranchResolver(repositoryService));
+  public DefaultBranchResolver getDefaultBranchResolver() {
+    return new DefaultBranchResolver(repositoryService);
   }
 
 }

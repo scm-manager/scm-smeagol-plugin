@@ -24,20 +24,17 @@
 
 package com.cloudogu.smeagol.search;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import sonia.scm.repository.Branch;
 import sonia.scm.repository.Repository;
 
 import java.io.IOException;
 import java.util.Optional;
 
-import static java.util.Optional.of;
-
+@Slf4j
 class IndexSyncWorker {
 
-  private static final Logger LOG = LoggerFactory.getLogger(IndexSyncWorker.class);
-
-  private final LatestRevisionResolver latestRevisionResolver;
+  private final DefaultBranchResolver defaultBranchResolver;
   private final UpdatePathCollector updatePathCollector;
   private final RevisionPathCollector revisionPathCollector;
   private final IndexStatusStore indexStatusStore;
@@ -46,7 +43,7 @@ class IndexSyncWorker {
   private final Repository repository;
 
   IndexSyncWorker(IndexingContext indexingContext) {
-    this.latestRevisionResolver = indexingContext.getLatestRevisionResolver();
+    this.defaultBranchResolver = indexingContext.getDefaultBranchResolver();
     this.updatePathCollector = indexingContext.getUpdatePathCollector();
     this.revisionPathCollector = indexingContext.getRevisionPathCollector();
     this.indexStatusStore = indexingContext.getIndexStatusStore();
@@ -56,42 +53,53 @@ class IndexSyncWorker {
 
   public void ensureIndexIsUpToDate() throws IOException {
     Optional<IndexStatus> status = indexStatusStore.get(repository);
-    Optional<Branch> defaultBranch = latestRevisionResolver.resolve();
+    Optional<Branch> defaultBranch = defaultBranchResolver.resolve();
+    if (!defaultBranch.isPresent()) {
+      log.warn("no default branch found for repository {}", repository);
+      emptyRepository();
+      return;
+    }
     if (status.isPresent()) {
       IndexStatus indexStatus = status.get();
       if (indexStatus.getVersion() != SmeagolDocument.VERSION) {
-        LOG.debug(
+        log.debug(
           "found index of repository {} in version {} required is {}, trigger reindex",
           repository, indexStatus.getVersion(), SmeagolDocument.VERSION
         );
-        reIndex(defaultBranch);
+        reIndex(defaultBranch.get());
       } else if (indexStatus.isEmpty()) {
-        reIndex(defaultBranch);
-      } else if (defaultBranch.isPresent() && !indexStatus.getBranch().equals(defaultBranch.get().getName())) {
-        reIndex(defaultBranch);
-      } else if (!defaultBranch.isPresent()) {
-        emptyRepository();
+        log.debug(
+          "no index status found for repository {}, trigger reindex",
+          repository
+        );
+        reIndex(defaultBranch.get());
+      } else if (!indexStatus.getBranch().equals(defaultBranch.get().getName())) {
+        log.debug(
+          "default branch changed from {} to {} in repository {}, trigger reindex",
+          indexStatus.getBranch(), defaultBranch.get().getName(), repository
+        );
+        reIndex(defaultBranch.get());
       } else {
         ensureIndexIsUpToDate(indexStatus.getRevision(), defaultBranch.get());
       }
     } else {
-      LOG.debug("no index status present for repository {}, trigger reindex", repository);
-      reIndex(defaultBranch);
+      log.debug("no index status present for repository {}, trigger reindex", repository);
+      reIndex(defaultBranch.get());
     }
   }
 
   private void ensureIndexIsUpToDate(String from, Branch to) throws IOException {
     if (from.equals(to.getRevision())) {
-      LOG.debug("index of repository {} is up to date", repository);
+      log.debug("index of repository {} is up to date", repository);
       return;
     }
 
-    LOG.debug("start updating index of repository {} from {} to {}", repository, from, to);
+    log.debug("start updating index of repository {} from {} to {}", repository, from, to);
 
     updatePathCollector.collect(from, to.getRevision());
 
     if (updatePathCollector.isConfigurationChanged()) {
-      reIndex(of(to));
+      reIndex(to);
     } else {
       updateIndex(to, updatePathCollector);
     }
@@ -104,21 +112,15 @@ class IndexSyncWorker {
     indexStatusStore.update(repository, branch);
   }
 
-  private void reIndex(Optional<Branch> defaultBranch) throws IOException {
-    LOG.debug("start re indexing for repository {}", repository);
+  private void reIndex(Branch defaultBranch) throws IOException {
+    log.debug("start re indexing for repository {}", repository);
     indexer.deleteAll();
-
-    if (defaultBranch.isPresent()) {
-      String revision = defaultBranch.get().getRevision();
-      revisionPathCollector.collect(defaultBranch.get().getRevision());
-      updateIndex(defaultBranch.get(), revisionPathCollector);
-    } else {
-      indexStatusStore.empty(repository);
-    }
+    revisionPathCollector.collect(defaultBranch.getRevision());
+    updateIndex(defaultBranch, revisionPathCollector);
   }
 
   private void emptyRepository() {
-    LOG.debug("repository {} looks empty, delete all to clean up", repository);
+    log.debug("repository {} looks empty, delete all to clean up", repository);
     indexer.deleteAll();
     indexStatusStore.empty(repository);
   }

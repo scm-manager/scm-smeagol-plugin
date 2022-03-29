@@ -25,6 +25,7 @@
 package com.cloudogu.smeagol.search;
 
 import lombok.Getter;
+import sonia.scm.repository.Branch;
 import sonia.scm.search.Indexed;
 import sonia.scm.search.IndexedType;
 
@@ -48,10 +49,7 @@ public class SmeagolDocument {
   @Indexed(type = Indexed.Type.STORED_ONLY)
   private final String repositoryId;
 
-  @Indexed(
-    defaultQuery = true,
-    analyzer = Indexed.Analyzer.PATH
-  )
+  @Indexed(type = Indexed.Type.STORED_ONLY)
   private final String filename;
 
   @Indexed(

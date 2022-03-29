@@ -24,6 +24,7 @@
 package com.cloudogu.smeagol.search;
 
 import com.google.common.io.ByteStreams;
+import sonia.scm.repository.Branch;
 import sonia.scm.repository.api.RepositoryService;
 
 import java.io.ByteArrayOutputStream;

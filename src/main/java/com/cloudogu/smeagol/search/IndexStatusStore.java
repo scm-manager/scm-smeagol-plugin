@@ -23,6 +23,7 @@
  */
 package com.cloudogu.smeagol.search;
 
+import sonia.scm.repository.Branch;
 import sonia.scm.repository.Repository;
 import sonia.scm.store.DataStore;
 import sonia.scm.store.DataStoreFactory;
@@ -37,7 +38,7 @@ import static com.cloudogu.smeagol.search.IndexStatus.EMPTY;
 @Singleton
 public class IndexStatusStore {
 
-  private static final String STORE_NAME ="smeagol-search-status";
+  private static final String STORE_NAME = "smeagol-search-status";
 
   private final DataStore<IndexStatus> store;
 
@@ -47,7 +48,7 @@ public class IndexStatusStore {
   }
 
   public void empty(Repository repository) {
-    update(repository, new Branch(EMPTY, EMPTY));
+    update(repository, Branch.defaultBranch(EMPTY, EMPTY, System.currentTimeMillis()));
   }
 
   private IndexStatus status(Branch branch) {

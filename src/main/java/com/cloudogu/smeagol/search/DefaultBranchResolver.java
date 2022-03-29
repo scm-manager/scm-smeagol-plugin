@@ -24,12 +24,9 @@
 
 package com.cloudogu.smeagol.search;
 
-import lombok.Getter;
 import sonia.scm.repository.Branch;
-import sonia.scm.repository.api.Command;
 import sonia.scm.repository.api.RepositoryService;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.Optional;
 
@@ -41,50 +38,13 @@ public class DefaultBranchResolver {
     this.repositoryService = repositoryService;
   }
 
-  public Result resolve() throws IOException {
-    if (!repositoryService.isSupported(Command.BRANCHES)) {
-      return Result.notSupported();
-    } else {
-      return repositoryService.getBranchesCommand()
-        .getBranches()
-        .getBranches()
-        .stream()
-        .filter(Branch::isDefaultBranch)
-        .findFirst()
-        .map(Branch::getName)
-        .map(Result::defaultBranch)
-        .orElseGet(Result::empty);
-    }
+  public Optional<Branch> resolve() throws IOException {
+    return repositoryService.getBranchesCommand()
+      .getBranches()
+      .getBranches()
+      .stream()
+      .filter(Branch::isDefaultBranch)
+      .findFirst();
   }
-
-  @Getter
-  public static class Result {
-
-    private final boolean empty;
-    @Nullable
-    private final String defaultBranch;
-
-    private Result(boolean empty, @Nullable String defaultBranch) {
-      this.empty = empty;
-      this.defaultBranch = defaultBranch;
-    }
-
-    public Optional<String> getDefaultBranch() {
-      return Optional.ofNullable(defaultBranch);
-    }
-
-    public static Result empty() {
-      return new Result(true, null);
-    }
-
-    public static Result notSupported() {
-      return new Result(false, null);
-    }
-
-    public static Result defaultBranch(String branch) {
-      return new Result(false, branch);
-    }
-  }
-
 
 }
