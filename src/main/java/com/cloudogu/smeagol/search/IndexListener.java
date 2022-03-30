@@ -60,12 +60,8 @@ public class IndexListener implements ServletContextListener {
   public void contextInitialized(ServletContextEvent servletContextEvent) {
     administrationContext.runAsAdmin(() -> {
       for (Repository repository : repositoryManager.getAll()) {
-        if ("git".equals(repository.getType())) {
-          LOG.debug("startup check if index of repository {} requires update", repository);
-          submit(repository);
-        } else {
-          LOG.trace("skipping non-git repository {}", repository);
-        }
+        LOG.debug("startup check if index of repository {} requires update", repository);
+        submit(repository);
       }
     });
   }
@@ -86,9 +82,13 @@ public class IndexListener implements ServletContextListener {
   }
 
   private void submit(Repository repository) {
-    searchEngine.forType(SmeagolDocument.class)
-      .forResource(repository)
-      .update(new IndexerTask(repository));
+    if ("git".equals(repository.getType())) {
+      searchEngine.forType(SmeagolDocument.class)
+        .forResource(repository)
+        .update(new IndexerTask(repository));
+    } else {
+      LOG.debug("skipping non-git repository {}", repository);
+    }
   }
 
   @Override
