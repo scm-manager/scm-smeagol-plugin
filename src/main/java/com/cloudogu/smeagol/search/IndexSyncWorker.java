@@ -43,12 +43,29 @@ class IndexSyncWorker {
   private final Repository repository;
 
   IndexSyncWorker(IndexingContext indexingContext) {
-    this.defaultBranchResolver = indexingContext.getDefaultBranchResolver();
-    this.updatePathCollector = indexingContext.getUpdatePathCollector();
-    this.revisionPathCollector = indexingContext.getRevisionPathCollector();
-    this.indexStatusStore = indexingContext.getIndexStatusStore();
-    this.indexer = indexingContext.getIndexer();
-    this.repository = indexingContext.getRepository();
+    this(indexingContext.getDefaultBranchResolver(),
+      indexingContext.getUpdatePathCollector(),
+      indexingContext.getRevisionPathCollector(),
+      indexingContext.getIndexStatusStore(),
+      indexingContext.getIndexer(),
+      indexingContext.getRepository()
+    );
+  }
+
+  IndexSyncWorker(
+    DefaultBranchResolver defaultBranchResolver,
+    UpdatePathCollector updatePathCollector,
+    RevisionPathCollector revisionPathCollector,
+    IndexStatusStore indexStatusStore,
+    Indexer indexer,
+    Repository repository
+  ) {
+    this.defaultBranchResolver = defaultBranchResolver;
+    this.updatePathCollector = updatePathCollector;
+    this.revisionPathCollector = revisionPathCollector;
+    this.indexStatusStore = indexStatusStore;
+    this.indexer = indexer;
+    this.repository = repository;
   }
 
   public void ensureIndexIsUpToDate() throws IOException {
