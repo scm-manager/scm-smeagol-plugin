@@ -93,11 +93,10 @@ class IndexSyncWorkerTest {
   @Nested
   class WithDefaultBranchTest {
 
-    private Branch branch;
+    private final Branch branch = Branch.defaultBranch("main", "42", 0L);
 
     @BeforeEach
     void mockDefaultBranch() throws IOException {
-      branch = Branch.defaultBranch("main", "42", 0L, null);
       when(defaultBranchResolver.resolve())
         .thenReturn(of(branch));
     }
@@ -108,7 +107,7 @@ class IndexSyncWorkerTest {
       private final List<String> pathsFromDefaultBranch = new ArrayList<>();
 
       @BeforeEach
-      void mockDefaultBranch() throws IOException {
+      void mockDefaultBranch() {
         lenient().when(revisionPathCollector.getPathToStore()).thenReturn(pathsFromDefaultBranch);
       }
 
