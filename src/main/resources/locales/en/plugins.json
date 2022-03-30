@@ -14,10 +14,6 @@
     "navLink": {
       "label": "Smeagol",
       "title": "Smeagol Wiki"
-    },
-    "hit": {
-      "binary": "Content could not be displayed because the file is binary.",
-      "empty": "Content could not be displayed because the file is empty."
     }
   },
   "permissions": {
