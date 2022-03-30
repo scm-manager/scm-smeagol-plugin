@@ -49,6 +49,10 @@ public class IndexStatus {
   private Instant lastUpdate;
   private int version;
 
+  static IndexStatus createEmpty() {
+    return new IndexStatus(EMPTY, EMPTY, Instant.now(), SmeagolDocument.VERSION);
+  }
+
   public boolean isEmpty() {
     return EMPTY.equals(revision);
   }

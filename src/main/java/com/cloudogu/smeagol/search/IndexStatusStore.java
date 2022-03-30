@@ -33,8 +33,6 @@ import javax.inject.Singleton;
 import java.time.Instant;
 import java.util.Optional;
 
-import static com.cloudogu.smeagol.search.IndexStatus.EMPTY;
-
 @Singleton
 public class IndexStatusStore {
 
@@ -47,27 +45,20 @@ public class IndexStatusStore {
     this.store = storeFactory.withType(IndexStatus.class).withName(STORE_NAME).build();
   }
 
-  public void empty(Repository repository) {
-    update(repository, Branch.defaultBranch(EMPTY, EMPTY, System.currentTimeMillis()));
-  }
-
-  private IndexStatus status(Branch branch) {
-    return new IndexStatus(branch.getRevision(), branch.getName(), Instant.now(), SmeagolDocument.VERSION);
+  void empty(Repository repository) {
+    store.put(repository.getId(), IndexStatus.createEmpty());
   }
 
   public void update(Repository repository, Branch branch) {
     store.put(repository.getId(), status(branch));
   }
 
-  void update(Repository repository, Branch branch, int version) {
-    IndexStatus status = status(branch);
-    status.setVersion(version);
-    store.put(repository.getId(), status);
+  private IndexStatus status(Branch branch) {
+    return new IndexStatus(branch.getRevision(), branch.getName(), Instant.now(), SmeagolDocument.VERSION);
   }
 
-  public Optional<IndexStatus> get(Repository repository) {
+  Optional<IndexStatus> get(Repository repository) {
     return store.getOptional(repository.getId());
   }
-
 }
 
