@@ -29,8 +29,14 @@
   "search": {
     "types": {
        "smeagolDocument": {
+         "title": "Smeagol Dokumente",
          "subtitle": "Smeagol",
-         "navItem": "Smeagol"
+         "navItem": "Smeagol",
+         "fields": {
+           "content": {
+             "hints": "Inhalt des Dokuments"
+           }
+         }
        }
     }
   }
