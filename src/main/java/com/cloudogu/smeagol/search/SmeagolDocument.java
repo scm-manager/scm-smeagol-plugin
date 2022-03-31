@@ -29,8 +29,6 @@ import sonia.scm.repository.Branch;
 import sonia.scm.search.Indexed;
 import sonia.scm.search.IndexedType;
 
-import java.nio.file.Paths;
-
 @Getter
 @IndexedType
 @SuppressWarnings("UnstableApiUsage")
@@ -49,9 +47,6 @@ public class SmeagolDocument {
   @Indexed(type = Indexed.Type.STORED_ONLY)
   private final String repositoryId;
 
-  @Indexed(type = Indexed.Type.STORED_ONLY)
-  private final String filename;
-
   @Indexed(
     defaultQuery = true,
     highlighted = true,
@@ -62,7 +57,6 @@ public class SmeagolDocument {
   public SmeagolDocument(Branch branch, String path, String repositoryId, String content) {
     this.revision = branch.getRevision();
     this.path = path;
-    this.filename = Paths.get(path).getFileName().toString();
     this.branch = branch.getName();
     this.repositoryId = repositoryId;
     this.content = content;

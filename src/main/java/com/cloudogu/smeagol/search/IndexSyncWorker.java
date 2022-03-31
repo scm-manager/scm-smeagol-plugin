@@ -24,6 +24,7 @@
 
 package com.cloudogu.smeagol.search;
 
+import com.google.common.annotations.VisibleForTesting;
 import lombok.extern.slf4j.Slf4j;
 import sonia.scm.repository.Branch;
 import sonia.scm.repository.Repository;
@@ -52,6 +53,7 @@ class IndexSyncWorker {
     );
   }
 
+  @VisibleForTesting
   IndexSyncWorker(
     DefaultBranchResolver defaultBranchResolver,
     UpdatePathCollector updatePathCollector,
