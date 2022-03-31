@@ -21,30 +21,40 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package com.cloudogu.smeagol.search;
 
-plugins {
-  id 'org.scm-manager.smp' version '0.10.3'
-}
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import sonia.scm.xml.XmlInstantAdapter;
 
-dependencies {
-  // Though the smeagol plugin does not technically depend upon the
-  // rest legacy plugin, we add this dependency nonetheless because
-  // smeagol would not run without this plugin. With this dependency
-  // the rest legacy plugin will be installed automatically to avoid
-  // confusion.
-  plugin "sonia.scm.plugins:scm-rest-legacy-plugin:2.0.0"
-  implementation "org.yaml:snakeyaml:1.30"
-}
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.time.Instant;
 
-repositories {
-  mavenLocal()
-}
+@Data
+@XmlRootElement
+@NoArgsConstructor
+@AllArgsConstructor
+@XmlAccessorType(XmlAccessType.FIELD)
+public class IndexStatus {
 
-scmPlugin {
-  scmVersion = "2.23.0"
-  displayName = "Smeagol Integration"
-  description = "Adds specialized endpoints used by Smeagol"
-  author = "Cloudogu GmbH"
-  category = "Documentation"
-  avatarUrl = '/images/smeagol-logo.png'
+  static final String EMPTY = "__empty";
+
+  private String revision;
+  private String branch;
+  @XmlJavaTypeAdapter(XmlInstantAdapter.class)
+  private Instant lastUpdate;
+  private int version;
+
+  static IndexStatus createEmpty() {
+    return new IndexStatus(EMPTY, EMPTY, Instant.now(), SmeagolDocument.VERSION);
+  }
+
+  public boolean isEmpty() {
+    return EMPTY.equals(revision);
+  }
+
 }

@@ -21,30 +21,44 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package com.cloudogu.smeagol.search;
 
-plugins {
-  id 'org.scm-manager.smp' version '0.10.3'
+import sonia.scm.repository.Branch;
+import sonia.scm.repository.Repository;
+import sonia.scm.store.DataStore;
+import sonia.scm.store.DataStoreFactory;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import java.time.Instant;
+import java.util.Optional;
+
+@Singleton
+public class IndexStatusStore {
+
+  private static final String STORE_NAME = "smeagol-search-status";
+
+  private final DataStore<IndexStatus> store;
+
+  @Inject
+  public IndexStatusStore(DataStoreFactory storeFactory) {
+    this.store = storeFactory.withType(IndexStatus.class).withName(STORE_NAME).build();
+  }
+
+  void empty(Repository repository) {
+    store.put(repository.getId(), IndexStatus.createEmpty());
+  }
+
+  public void update(Repository repository, Branch branch) {
+    store.put(repository.getId(), status(branch));
+  }
+
+  private IndexStatus status(Branch branch) {
+    return new IndexStatus(branch.getRevision(), branch.getName(), Instant.now(), SmeagolDocument.VERSION);
+  }
+
+  Optional<IndexStatus> get(Repository repository) {
+    return store.getOptional(repository.getId());
+  }
 }
 
-dependencies {
-  // Though the smeagol plugin does not technically depend upon the
-  // rest legacy plugin, we add this dependency nonetheless because
-  // smeagol would not run without this plugin. With this dependency
-  // the rest legacy plugin will be installed automatically to avoid
-  // confusion.
-  plugin "sonia.scm.plugins:scm-rest-legacy-plugin:2.0.0"
-  implementation "org.yaml:snakeyaml:1.30"
-}
-
-repositories {
-  mavenLocal()
-}
-
-scmPlugin {
-  scmVersion = "2.23.0"
-  displayName = "Smeagol Integration"
-  description = "Adds specialized endpoints used by Smeagol"
-  author = "Cloudogu GmbH"
-  category = "Documentation"
-  avatarUrl = '/images/smeagol-logo.png'
-}

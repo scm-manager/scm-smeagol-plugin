@@ -22,29 +22,25 @@
  * SOFTWARE.
  */
 
-plugins {
-  id 'org.scm-manager.smp' version '0.10.3'
-}
+package com.cloudogu.smeagol.search;
 
-dependencies {
-  // Though the smeagol plugin does not technically depend upon the
-  // rest legacy plugin, we add this dependency nonetheless because
-  // smeagol would not run without this plugin. With this dependency
-  // the rest legacy plugin will be installed automatically to avoid
-  // confusion.
-  plugin "sonia.scm.plugins:scm-rest-legacy-plugin:2.0.0"
-  implementation "org.yaml:snakeyaml:1.30"
-}
+import sonia.scm.repository.api.RepositoryService;
+import sonia.scm.search.Index;
 
-repositories {
-  mavenLocal()
-}
+import javax.inject.Inject;
 
-scmPlugin {
-  scmVersion = "2.23.0"
-  displayName = "Smeagol Integration"
-  description = "Adds specialized endpoints used by Smeagol"
-  author = "Cloudogu GmbH"
-  category = "Documentation"
-  avatarUrl = '/images/smeagol-logo.png'
+@SuppressWarnings("UnstableApiUsage")
+public class IndexerFactory {
+
+  private final SmeagolDocumentFactory smeagolDocumentFactory;
+
+  @Inject
+  public IndexerFactory(SmeagolDocumentFactory smeagolDocumentFactory) {
+    this.smeagolDocumentFactory = smeagolDocumentFactory;
+  }
+
+  public Indexer create(Index<SmeagolDocument> index, RepositoryService repositoryService) {
+    return new Indexer(smeagolDocumentFactory, index, repositoryService);
+  }
+
 }

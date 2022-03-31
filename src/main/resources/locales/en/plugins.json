@@ -25,5 +25,19 @@
         }
       }
     }
+  },
+  "search": {
+    "types": {
+      "smeagolDocument": {
+        "title": "Smeagol Documents",
+        "subtitle": "Smeagol",
+        "navItem": "Smeagol",
+        "fields": {
+          "content": {
+            "hints": "Content of the document"
+          }
+        }
+      }
+    }
   }
 }

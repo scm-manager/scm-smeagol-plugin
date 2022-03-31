@@ -22,29 +22,43 @@
  * SOFTWARE.
  */
 
-plugins {
-  id 'org.scm-manager.smp' version '0.10.3'
-}
+package com.cloudogu.smeagol.search;
 
-dependencies {
-  // Though the smeagol plugin does not technically depend upon the
-  // rest legacy plugin, we add this dependency nonetheless because
-  // smeagol would not run without this plugin. With this dependency
-  // the rest legacy plugin will be installed automatically to avoid
-  // confusion.
-  plugin "sonia.scm.plugins:scm-rest-legacy-plugin:2.0.0"
-  implementation "org.yaml:snakeyaml:1.30"
-}
+import lombok.Getter;
+import sonia.scm.repository.Branch;
+import sonia.scm.search.Indexed;
+import sonia.scm.search.IndexedType;
 
-repositories {
-  mavenLocal()
-}
+@Getter
+@IndexedType
+@SuppressWarnings("UnstableApiUsage")
+public class SmeagolDocument {
+  public static final int VERSION = 1;
 
-scmPlugin {
-  scmVersion = "2.23.0"
-  displayName = "Smeagol Integration"
-  description = "Adds specialized endpoints used by Smeagol"
-  author = "Cloudogu GmbH"
-  category = "Documentation"
-  avatarUrl = '/images/smeagol-logo.png'
+  @Indexed(type = Indexed.Type.STORED_ONLY)
+  private final String revision;
+
+  @Indexed(type = Indexed.Type.STORED_ONLY)
+  private final String path;
+
+  @Indexed(type = Indexed.Type.STORED_ONLY)
+  private final String branch;
+
+  @Indexed(type = Indexed.Type.STORED_ONLY)
+  private final String repositoryId;
+
+  @Indexed(
+    defaultQuery = true,
+    highlighted = true,
+    analyzer = Indexed.Analyzer.DEFAULT
+  )
+  private final String content;
+
+  public SmeagolDocument(Branch branch, String path, String repositoryId, String content) {
+    this.revision = branch.getRevision();
+    this.path = path;
+    this.branch = branch.getName();
+    this.repositoryId = repositoryId;
+    this.content = content;
+  }
 }

@@ -1,0 +1,2 @@
+- type: added
+  description: Basic search api to be used for the global search in Smeagol ([#11](https://github.com/scm-manager/scm-smeagol-plugin/pull/11))

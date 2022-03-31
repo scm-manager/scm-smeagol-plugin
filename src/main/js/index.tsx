@@ -27,6 +27,7 @@ import { binder } from "@scm-manager/ui-extensions";
 import SmeagolConfiguration from "./SmeagolConfiguration";
 import SmeagolNavLink from "./SmeagolNavLink";
 import SmeagolPrimaryNavigation from "./SmeagolPrimaryNavigation";
+import SmeagolHitRenderer from "./SmeagolHitRenderer";
 
 cfgBinder.bindGlobal("/smeagol", "scm-smeagol-plugin.nav-link", "smeagolConfig", SmeagolConfiguration);
 
@@ -39,8 +40,9 @@ const SmeagolNavLinkFactory = ({ repository }) => {
 };
 
 const smeagolPrimaryNavigationPredicate = (props: object) => {
-  return props.links.smeagol.find( x => x.name === 'smeagolRoot');
+  return props.links.smeagol.find(x => x.name === "smeagolRoot");
 };
 
 binder.bind("repository.navigation", SmeagolNavLinkFactory, smeagolWikiPredicate);
 binder.bind("primary-navigation", SmeagolPrimaryNavigation, smeagolPrimaryNavigationPredicate);
+binder.bind("search.hit.smeagolDocument.renderer", SmeagolHitRenderer);
