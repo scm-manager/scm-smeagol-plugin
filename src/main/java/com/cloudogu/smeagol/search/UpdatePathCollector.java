@@ -83,7 +83,7 @@ public class UpdatePathCollector implements PathCollector {
 
       collect(modifications);
     } catch (IOException e) {
-      LOG.warn("could not load modifications from revision {} to {} in repository {}", from, to, repositoryService.getRepository());
+      LOG.warn("could not load modifications from revision {} to {} in repository {}", from, to, repositoryService.getRepository(), e);
     }
   }
 

@@ -27,9 +27,7 @@ package com.cloudogu.smeagol.search;
 import com.google.common.base.Stopwatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sonia.scm.repository.Feature;
 import sonia.scm.repository.Repository;
-import sonia.scm.repository.api.Command;
 import sonia.scm.repository.api.RepositoryService;
 import sonia.scm.repository.api.RepositoryServiceFactory;
 import sonia.scm.search.Index;
@@ -65,10 +63,11 @@ public class IndexSyncer {
     Stopwatch sw = Stopwatch.createStarted();
     Indexer indexer = indexerFactory.create(index, repositoryService);
     try {
+      LOG.trace("ensure index is up to date started for repository {}", repositoryService.getRepository());
       IndexSyncWorker worker = indexSyncWorkerFactory.create(repositoryService, indexer);
       worker.ensureIndexIsUpToDate();
     } finally {
-      LOG.debug("ensure index is up to date operation finished in {}", sw.stop());
+      LOG.debug("ensure index is up to date operation for repository {} finished in {}", repositoryService.getRepository(), sw.stop());
     }
   }
 

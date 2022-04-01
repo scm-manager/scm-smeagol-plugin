@@ -26,6 +26,7 @@ package com.cloudogu.smeagol.search;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sonia.scm.NotFoundException;
 import sonia.scm.repository.BrowserResult;
 import sonia.scm.repository.FileObject;
 import sonia.scm.repository.api.RepositoryService;
@@ -34,7 +35,11 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
+
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
 
 public class RevisionPathCollector implements PathCollector {
 
@@ -67,8 +72,14 @@ public class RevisionPathCollector implements PathCollector {
   }
 
   private void collect(String revision, String smeagolPath) {
+    browseSmeagolDocuments(revision, smeagolPath)
+      .ifPresent(result -> collect(result.getFile()));
+  }
+
+  private Optional<BrowserResult> browseSmeagolDocuments(String revision, String smeagolPath) {
+    LOG.debug("browsing smeagol documents in directory {} in revision {} in repository {}", smeagolPath, revision, repositoryService.getRepository());
     try {
-      BrowserResult result = repositoryService.getBrowseCommand()
+      return of(repositoryService.getBrowseCommand()
         .setDisableSubRepositoryDetection(true)
         .setDisableLastCommit(true)
         .setDisablePreProcessors(true)
@@ -76,12 +87,13 @@ public class RevisionPathCollector implements PathCollector {
         .setRecursive(true)
         .setRevision(revision)
         .setPath(smeagolPath)
-        .getBrowserResult();
-
-      collect(result.getFile());
+        .getBrowserResult());
+    } catch (NotFoundException e) {
+      LOG.info("configured smeagol directory '{}' not found in revision {} in repository {}", smeagolPath, revision, repositoryService.getRepository());
     } catch (IOException e) {
-      LOG.warn("error while browsing documents for repository {} with revision {}", repositoryService.getRepository(), revision);
+      LOG.warn("error while browsing documents for repository {} with revision {}", repositoryService.getRepository(), revision, e);
     }
+    return empty();
   }
 
   private void collect(FileObject file) {

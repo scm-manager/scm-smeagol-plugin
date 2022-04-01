@@ -70,8 +70,10 @@ public class SmeagolConfigurationResolver {
   private void extractPathFromConfigMap(Map<String, Object> smeagol) {
     if (smeagol == null) {
       smeagolPath = DEFAULT_DOCS_DIRECTORY;
+      LOG.trace("found empty smeagol configuration for repository {}; using default directory {}", service.getRepository(), smeagolPath);
     } else {
       smeagolPath = smeagol.getOrDefault("directory", DEFAULT_DOCS_DIRECTORY).toString();
+      LOG.trace("found smeagol configuration with directory {} for repository {}", smeagolPath, service.getRepository());
     }
   }
 
