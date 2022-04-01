@@ -28,13 +28,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 import sonia.scm.NotFoundException;
+import sonia.scm.repository.api.CatCommandBuilder;
 import sonia.scm.repository.api.RepositoryService;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 
 public class SmeagolConfigurationResolver {
@@ -51,16 +55,34 @@ public class SmeagolConfigurationResolver {
   }
 
   void readConfig() {
+    readConfig(null);
+  }
+
+  void readConfig(@Nullable String revision) {
+    readSmeagolConfig(revision).ifPresent(
+      smeagolConfig -> {
+        Yaml yaml = new Yaml();
+        Map<String, Object> smeagol = yaml.load(smeagolConfig);
+        extractPathFromConfigMap(smeagol);
+      }
+    );
+  }
+
+  private Optional<String> readSmeagolConfig(@Nullable String revision) {
     try {
-      Yaml yaml = new Yaml();
-      String smeagolConfig = service.getCatCommand().getContent(".smeagol.yml");
-      Map<String, Object> smeagol = yaml.load(smeagolConfig);
-      extractPathFromConfigMap(smeagol);
+      CatCommandBuilder catCommand = service.getCatCommand();
+      if (revision != null) {
+        LOG.trace("using revision {}", revision);
+        catCommand.setRevision(revision);
+      }
+      String content = catCommand.getContent(".smeagol.yml");
+      return of(content);
     } catch (NotFoundException e) {
       LOG.trace("no file '.smeagol.yml' found in repository {}", service.getRepository());
     } catch (IOException e) {
       LOG.warn("could not read smeagol configuration for repository {}", service.getRepository());
     }
+    return empty();
   }
 
   Optional<String> getSmeagolPath() {

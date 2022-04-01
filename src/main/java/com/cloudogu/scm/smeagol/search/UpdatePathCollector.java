@@ -67,7 +67,7 @@ public class UpdatePathCollector implements PathCollector {
   }
 
   void collect(String from, String to) {
-    smeagolConfigurationResolver.readConfig();
+    smeagolConfigurationResolver.readConfig(to);
     Optional<String> smeagolPath = smeagolConfigurationResolver.getSmeagolPath();
     if (!smeagolPath.isPresent()) {
       return;

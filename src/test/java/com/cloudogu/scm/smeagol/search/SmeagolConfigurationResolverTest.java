@@ -39,6 +39,8 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -77,6 +79,26 @@ class SmeagolConfigurationResolverTest {
     resolver.readConfig();
 
     assertThat(resolver.getSmeagolPath()).isEmpty();
+  }
+
+  @Test
+  void getSmeagolPathShouldNotSetAnyRevisionIfNotGiven() throws Exception {
+    when(service.getCatCommand().getContent(".smeagol.yml"))
+      .thenReturn("");
+
+    resolver.readConfig();
+
+    verify(service.getCatCommand(), never()).setRevision("42");
+  }
+
+  @Test
+  void getSmeagolPathShouldUseRevision() throws Exception {
+    when(service.getCatCommand().getContent(".smeagol.yml"))
+      .thenReturn("");
+
+    resolver.readConfig("42");
+
+    verify(service.getCatCommand()).setRevision("42");
   }
 
   @ParameterizedTest
