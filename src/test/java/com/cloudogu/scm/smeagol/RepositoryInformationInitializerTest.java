@@ -24,7 +24,6 @@
 
 package com.cloudogu.scm.smeagol;
 
-import org.assertj.core.api.Assertions;
 import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -61,15 +60,12 @@ class RepositoryInformationInitializerTest {
         new Repository("3", "hg", "space", "repo_3")
       ));
     when(computer.compute(any())).thenAnswer(
-      invocation -> {
-        Repository repository = invocation.getArgument(0, Repository.class);
-        return new RepositoryInformation("main", true);
-      }
+      invocation -> new RepositoryInformation("main", true)
     );
 
     Map<String, RepositoryInformation> result = initializer.call();
 
-    Assertions.assertThat(result)
+    assertThat(result)
       .hasSize(2)
       .containsKeys("1", "2")
       .hasValueSatisfying(isSmeagolRelevant());

@@ -24,7 +24,6 @@
 
 package com.cloudogu.scm.smeagol;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -127,7 +126,7 @@ class SmeagolRepositoryStoreTest {
 
     List<SmeagolRepositoryInformation> repositories = store.getRepositories();
 
-    Assertions.assertThat(repositories).hasSizeGreaterThan(0);
+    assertThat(repositories).hasSizeGreaterThan(0);
     assertThat(repositories.get(0).getId()).isEqualTo("1");
     assertThat(repositories.get(0).getDefaultBranch()).isEqualTo("main");
   }
@@ -138,8 +137,8 @@ class SmeagolRepositoryStoreTest {
 
     List<SmeagolRepositoryInformation> repositories = store.getRepositories();
 
-    Assertions.assertThat(repositories).hasSize(2);
-    Assertions.assertThat(repositories).extracting("id").contains("1", "3");
+    assertThat(repositories).hasSize(2);
+    assertThat(repositories).extracting("id").contains("1", "3");
   }
 
   @Nested
