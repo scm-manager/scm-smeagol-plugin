@@ -119,7 +119,7 @@ class UpdatePathCollectorTest {
           "docs/x.md"
         );
         InOrder inOrder = inOrder(smeagolConfigurationResolver);
-        inOrder.verify(smeagolConfigurationResolver).readConfig();
+        inOrder.verify(smeagolConfigurationResolver).readConfig("42");
         inOrder.verify(smeagolConfigurationResolver).getSmeagolPath();
       }
 
