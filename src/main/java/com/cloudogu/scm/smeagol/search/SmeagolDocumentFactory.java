@@ -37,7 +37,7 @@ public class SmeagolDocumentFactory {
     try (InputStream content = repositoryService.getCatCommand().setRevision(branch.getRevision()).getStream(path)) {
       ByteArrayOutputStream output = new ByteArrayOutputStream();
       ByteStreams.copy(content, output);
-      return new SmeagolDocument(branch, path, repositoryService.getRepository().getId(), output.toString());
+      return new SmeagolDocument(branch, path, repositoryService.getRepository().getId(), output.toString("UTF-8"));
     }
   }
 }

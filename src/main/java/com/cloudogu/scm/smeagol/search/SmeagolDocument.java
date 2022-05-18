@@ -33,7 +33,7 @@ import sonia.scm.search.IndexedType;
 @IndexedType
 @SuppressWarnings("UnstableApiUsage")
 public class SmeagolDocument {
-  public static final int VERSION = 1;
+  public static final int VERSION = 2;
 
   @Indexed(type = Indexed.Type.STORED_ONLY)
   private final String revision;
