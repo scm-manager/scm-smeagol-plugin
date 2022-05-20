@@ -1,0 +1,2 @@
+- type: fixed
+  description: Character encoding for Windows ([#13](https://github.com/scm-manager/scm-smeagol-plugin/pull/13))
