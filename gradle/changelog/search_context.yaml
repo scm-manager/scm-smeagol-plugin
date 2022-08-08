@@ -1,0 +1,2 @@
+- type: changed
+  description: Declare smeagol documents as repository-scoped and namespace-scoped for global search ([#14](https://github.com/scm-manager/scm-smeagol-plugin/pull/14))

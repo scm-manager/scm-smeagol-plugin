@@ -30,7 +30,7 @@ import sonia.scm.search.Indexed;
 import sonia.scm.search.IndexedType;
 
 @Getter
-@IndexedType
+@IndexedType(repositoryScoped = true, namespaceScoped = true)
 @SuppressWarnings("UnstableApiUsage")
 public class SmeagolDocument {
   public static final int VERSION = 2;

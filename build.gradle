@@ -23,7 +23,7 @@
  */
 
 plugins {
-  id 'org.scm-manager.smp' version '0.10.3'
+  id 'org.scm-manager.smp' version '0.11.1'
 }
 
 dependencies {
@@ -41,7 +41,7 @@ repositories {
 }
 
 scmPlugin {
-  scmVersion = "2.23.0"
+  scmVersion = "2.37.3-SNAPSHOT"
   displayName = "Smeagol Integration"
   description = "Adds specialized endpoints used by Smeagol"
   author = "Cloudogu GmbH"
