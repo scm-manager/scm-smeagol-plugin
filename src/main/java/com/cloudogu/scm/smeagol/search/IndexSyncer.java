@@ -59,6 +59,22 @@ public class IndexSyncer {
     }
   }
 
+  public void reindex(Index<SmeagolDocument> index, Repository repository) {
+    try (RepositoryService repositoryService = repositoryServiceFactory.create(repository)) {
+      Stopwatch sw = Stopwatch.createStarted();
+      Indexer indexer = indexerFactory.create(index, repositoryService);
+      try {
+        LOG.trace("reindex started for repository {}", repositoryService.getRepository());
+        IndexSyncWorker worker = indexSyncWorkerFactory.create(repositoryService, indexer);
+        worker.reIndex();
+      } finally {
+        LOG.debug("reindex operation for repository {} finished in {}", repositoryService.getRepository(), sw.stop());
+      }
+    } catch (IOException e) {
+      LOG.error("failed reindex repository {}", repository, e);
+    }
+  }
+
   private void ensureIndexIsUpToDate(Index<SmeagolDocument> index, RepositoryService repositoryService) throws IOException {
     Stopwatch sw = Stopwatch.createStarted();
     Indexer indexer = indexerFactory.create(index, repositoryService);

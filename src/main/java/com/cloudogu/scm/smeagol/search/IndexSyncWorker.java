@@ -138,6 +138,16 @@ class IndexSyncWorker {
     updateIndex(defaultBranch, revisionPathCollector);
   }
 
+  void reIndex() throws IOException {
+    Optional<Branch> defaultBranch = defaultBranchResolver.resolve();
+    if (defaultBranch.isEmpty()) {
+      log.warn("no default branch found for repository {}", repository);
+      emptyRepository();
+      return;
+    }
+    reIndex(defaultBranch.get());
+  }
+
   private void emptyRepository() {
     log.debug("repository {} looks empty, delete all to clean up", repository);
     indexer.deleteAll();

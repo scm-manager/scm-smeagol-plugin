@@ -84,11 +84,18 @@ public class IndexListener implements ServletContextListener {
 
   @Subscribe
   public void handle(ReindexRepositoryEvent event) {
+    Repository repository = event.getRepository();
     LOG.debug(
-      "received reindex event for repository {}, update index if necessary",
-      event.getItem()
+      "received reindex event for repository {}, delete and recreate index from scratch",
+      repository
     );
-    submit(event.getItem());
+    if ("git".equals(repository.getType())) {
+      searchEngine.forType(SmeagolDocument.class)
+        .forResource(repository)
+        .update(new ReindexTask(repository));
+    } else {
+      LOG.debug("skipping non-git repository {}", repository);
+    }
   }
 
   private void submit(Repository repository) {
