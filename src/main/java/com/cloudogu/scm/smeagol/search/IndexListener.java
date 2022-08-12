@@ -32,6 +32,7 @@ import sonia.scm.repository.DefaultBranchChangedEvent;
 import sonia.scm.repository.PostReceiveRepositoryHookEvent;
 import sonia.scm.repository.Repository;
 import sonia.scm.repository.RepositoryManager;
+import sonia.scm.search.ReindexRepositoryEvent;
 import sonia.scm.search.SearchEngine;
 import sonia.scm.web.security.AdministrationContext;
 
@@ -79,6 +80,15 @@ public class IndexListener implements ServletContextListener {
       event.getRepository()
     );
     submit(event.getRepository());
+  }
+
+  @Subscribe
+  public void handle(ReindexRepositoryEvent event) {
+    LOG.debug(
+      "received reindex event for repository {}, update index if necessary",
+      event.getItem()
+    );
+    submit(event.getItem());
   }
 
   private void submit(Repository repository) {
