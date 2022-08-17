@@ -177,6 +177,12 @@ class IndexSyncWorkerTest {
         verify(indexStatusStore, never()).empty(any());
       }
 
+      @Test
+      void shouldReIndex() throws IOException {
+        worker.reIndex();
+        verifyReIndex();
+      }
+
       private void verifyReIndex() throws IOException {
         verify(indexer).deleteAll();
         verify(revisionPathCollector).collect("42");

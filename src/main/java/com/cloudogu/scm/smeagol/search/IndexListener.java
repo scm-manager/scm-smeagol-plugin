@@ -24,6 +24,7 @@
 
 package com.cloudogu.scm.smeagol.search;
 
+import com.cloudogu.scm.smeagol.SmeagolRepositoryFilter;
 import com.github.legman.Subscribe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +33,7 @@ import sonia.scm.repository.DefaultBranchChangedEvent;
 import sonia.scm.repository.PostReceiveRepositoryHookEvent;
 import sonia.scm.repository.Repository;
 import sonia.scm.repository.RepositoryManager;
+import sonia.scm.search.ReindexRepositoryEvent;
 import sonia.scm.search.SearchEngine;
 import sonia.scm.web.security.AdministrationContext;
 
@@ -81,13 +83,29 @@ public class IndexListener implements ServletContextListener {
     submit(event.getRepository());
   }
 
+  @Subscribe
+  public void handle(ReindexRepositoryEvent event) {
+    Repository repository = event.getRepository();
+    LOG.debug(
+      "received reindex event for repository {}, delete and recreate index from scratch",
+      repository
+    );
+    if (SmeagolRepositoryFilter.isPotentiallySmeagolRelevant(repository)) {
+      searchEngine.forType(SmeagolDocument.class)
+        .forResource(repository)
+        .update(new ReindexTask(repository));
+    } else {
+      LOG.debug("repository {} is not relevant for smeagol, skipping", repository);
+    }
+  }
+
   private void submit(Repository repository) {
-    if ("git".equals(repository.getType())) {
+    if (SmeagolRepositoryFilter.isPotentiallySmeagolRelevant(repository)) {
       searchEngine.forType(SmeagolDocument.class)
         .forResource(repository)
         .update(new IndexerTask(repository));
     } else {
-      LOG.debug("skipping non-git repository {}", repository);
+      LOG.debug("repository {} is not relevant for smeagol, skipping", repository);
     }
   }
 
