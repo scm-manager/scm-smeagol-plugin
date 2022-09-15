@@ -41,7 +41,7 @@ repositories {
 }
 
 scmPlugin {
-  scmVersion = "2.38.2-SNAPSHOT"
+  scmVersion = "2.39.0"
   displayName = "Smeagol Integration"
   description = "Adds specialized endpoints used by Smeagol"
   author = "Cloudogu GmbH"
