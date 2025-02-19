@@ -2643,9 +2643,9 @@
     "@types/node" "*"
 
 "@types/enzyme@^3.10.3":
-  version "3.10.13"
-  resolved "https://registry.yarnpkg.com/@types/enzyme/-/enzyme-3.10.13.tgz#332c0ed59b01f7b1c398c532a1c21a5feefabeb1"
-  integrity sha512-FCtoUhmFsud0Yx9fmZk179GkdZ4U9B0GFte64/Md+W/agx0L5SxsIIbhLBOxIb9y2UfBA4WQnaG1Od/UsUQs9Q==
+  version "3.10.14"
+  resolved "https://registry.yarnpkg.com/@types/enzyme/-/enzyme-3.10.14.tgz#dc30e3820a6331e8165be442cc778f25457ec44d"
+  integrity sha512-JeTG2MNUX1bH2DqccwUe3SuPoLu+kUz5UgR3Tvl9nBdfNj7rBZscytctSjEatd5Ul9GXXGKaQBaxODIgJYVRqA==
   dependencies:
     "@types/cheerio" "*"
     "@types/react" "^16"
@@ -2822,9 +2822,9 @@
   integrity sha512-YATxVxgRqNH6nHEIsvg6k2Boc1JHI9ZbH5iWFFv/MTkchz3b1ieGDa5T0a9RznNdI0KhVbdbWSN+KWWrQZRxTw==
 
 "@types/node@*":
-  version "20.6.3"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-20.6.3.tgz#5b763b321cd3b80f6b8dde7a37e1a77ff9358dd9"
-  integrity sha512-HksnYH4Ljr4VQgEy2lTStbCKv/P590tmPe5HqOnv9Gprffgv5WXAY+Y5Gqniu0GGqeTCUdBnzC3QSrzPkBkAMA==
+  version "20.6.4"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-20.6.4.tgz#7882cb8b8adc3106c352dac9c02d4d3ebb95cf3e"
+  integrity sha512-nU6d9MPY0NBUMiE/nXd2IIoC4OLvsLpwAjheoAeuzgvDZA1Cb10QYg+91AF6zQiKWRN5i1m07x6sMe0niBznoQ==
 
 "@types/normalize-package-data@^2.4.0":
   version "2.4.0"
